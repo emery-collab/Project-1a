@@ -85,23 +85,25 @@ struct Point2D {
 };
 
 static std::ostream &operator<<(std::ostream &os, const Point2D &p) {
-    // TODO: write this code
+    os << "(" << p.x << ", " << p.y << ")";
     return os;
 }
 
 static Point2D operator*(float number, const Point2D &rhs) {
-    // TODO: write this code
-    return rhs;
+    return Point2D(number * rhs.x , number * rhs.y);
 }
 
 struct Line {
     Point2D p1, p2;
 
-    Line(Point2D p1 = {0, 0}, Point2D p2 = {0, 0}) : p1(p1), p2(p2) {}
-    Line(float x1, float y1, float x2, float y2) : p1(x1, y1), p2(x2, y2) {}
+    Line(Point2D p1 = {0, 0}, Point2D p2 = {0, 0}) : p1(p1), p2(p2) {
+
+    }
+    Line(float x1, float y1, float x2, float y2) : p1(x1, y1), p2(x2, y2) {
+
+    }
     float Length() const {
-        // TODO: write this code
-        return 0;
+       return p1.Distance(p2);
     }
     Point2D ClosestPoint(const Point2D &p) const {
         // TODO: write this code
@@ -122,9 +124,13 @@ struct Circle {
     Point2D center;
     float radius;
 
-    Circle(Point2D c = {0, 0}, float r = 0) : center(c), radius(r) {}
+    Circle(Point2D c = {0, 0}, float r = 0) : center(c), radius(r) {
 
-    Circle(float x, float y, float r) : center(x, y), radius(r) {}
+    }
+
+    Circle(float x, float y, float r) : center(x, y), radius(r) {
+        
+    }
 };
 
 struct Rect {

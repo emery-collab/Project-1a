@@ -74,6 +74,9 @@ struct Point2D {
     }
     static float Cross(Point2D a, Point2D b) {
         return a.x * b.y - a.y * b.x;
+    }    
+    float Cross(Point2D b) const{
+        return x * b.y - y * b.x;
     }
     void Normalize() {
         if(x != 0 || y != 0){
@@ -85,27 +88,33 @@ struct Point2D {
 };
 
 static std::ostream &operator<<(std::ostream &os, const Point2D &p) {
-    // TODO: write this code
+    os << "(" << p.x << ", " << p.y << ")";
     return os;
 }
 
 static Point2D operator*(float number, const Point2D &rhs) {
-    // TODO: write this code
-    return rhs;
+    return Point2D(number * rhs.x , number * rhs.y);
 }
 
 struct Line {
     Point2D p1, p2;
 
-    Line(Point2D p1 = {0, 0}, Point2D p2 = {0, 0}) : p1(p1), p2(p2) {}
-    Line(float x1, float y1, float x2, float y2) : p1(x1, y1), p2(x2, y2) {}
+    Line(Point2D p1 = {0, 0}, Point2D p2 = {0, 0}) : p1(p1), p2(p2) {
+
+    }
+    Line(float x1, float y1, float x2, float y2) : p1(x1, y1), p2(x2, y2) {
+
+    }
     float Length() const {
-        // TODO: write this code
-        return 0;
+       return p1.Distance(p2);
     }
     Point2D ClosestPoint(const Point2D &p) const {
-        // TODO: write this code
-        return p;
+        if(p.Distance(p1)< p.Distance(p2)){
+            return p1;
+        }
+        else{
+            return p2;
+        }
     }
     bool Crosses(Line other, Point2D &crossingPoint) const {
         // TODO: write this code
@@ -122,9 +131,13 @@ struct Circle {
     Point2D center;
     float radius;
 
-    Circle(Point2D c = {0, 0}, float r = 0) : center(c), radius(r) {}
+    Circle(Point2D c = {0, 0}, float r = 0) : center(c), radius(r) {
 
-    Circle(float x, float y, float r) : center(x, y), radius(r) {}
+    }
+
+    Circle(float x, float y, float r) : center(x, y), radius(r) {
+        
+    }
 };
 
 struct Rect {
@@ -132,7 +145,8 @@ struct Rect {
     float width, height;
 
     Rect(float left, float top, float width, float height)
-        : topLeft(Point2D(top, left)), width(width), height(height) {}
+        : topLeft(Point2D(left,top )), width(width), height(height) {//switched left and top
+            }
 
     Rect(Point2D tl = {0, 0}, int w = 0, int h = 0) : topLeft(tl), width(w), height(h) {}
 
@@ -146,11 +160,23 @@ struct Rect {
         : topLeft(center.x - radius, center.y - radius), width(2 * radius), height(2 * radius) {}
 
     Rect &operator|=(const Rect &other) {
-        // TODO: write this code
+        float left =  std::min(topLeft.x, other.topLeft.x);
+        float top =  std::min(topLeft.y, other.topLeft.y);
+        float right = std::max(topLeft.x + width, other.topLeft.x + other.width);
+        float bottom = std::max(topLeft.y + height, other.topLeft.y + other.height);
+        topLeft = Point2D(left, top);
+        width = (right -left);
+        height = (bottom - top);
         return *this;
     }
     Rect &operator|=(const Point2D &other) {
-        // TODO: write this code
+        float left =  std::min(topLeft.x, other.x);
+        float top =  std::min(topLeft.y, other.y);
+        float right = std::max(topLeft.x + width, other.x);
+        float bottom = std::max(topLeft.y + height, other.y);
+        topLeft = Point2D(left, top);
+        width = (right -left);
+        height = (bottom - top);
         return *this;
     }
     Rect &operator|=(const Line &other) {
@@ -158,7 +184,17 @@ struct Rect {
         return *this;
     }
     Rect &operator&=(const Rect &other) {
-        // TODO: write this code
+        float left =  std::max(topLeft.x, other.topLeft.x);
+        float top =  std::max(topLeft.y, other.topLeft.y);
+        float right = std::min(topLeft.x + width, other.topLeft.x + other.width);
+        float bottom = std::min(topLeft.y + height, other.topLeft.y + other.height);
+        topLeft = Point2D(left, top);
+        width = (right -left);
+        height = (bottom - top);
+        if(width < 0 ||height < 0){
+            width = 0;
+            height = 0;
+        }
         return *this;
     }
     Rect &operator+=(const Point2D &other) {
@@ -170,10 +206,20 @@ struct Rect {
         return *this;
     }
     void Inset(int inset) {
-        // TODO: write this code
+        if(inset > 0)
+        {
+            topLeft = Point2D(topLeft.x +inset, topLeft.y + inset);
+            //each side lost the inset amount (right and left lose inset etc)
+            width = width-(2*inset);
+            height = height-(2*inset);
+        }
+
     }
     bool IsInside(const Point2D &p) const {
-        // TODO: write this code
+        if(topLeft.x <= p.x && p.x<= topLeft.x + width && 
+            topLeft.y <= p.y && p.y <= topLeft.y + height ){
+            return true;
+        }
         return false;
     }
 };

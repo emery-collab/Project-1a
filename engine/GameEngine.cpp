@@ -17,7 +17,10 @@ GameEngine::~GameEngine() {
     // mWindow->close();
 }
 
-void GameEngine::AddGameObject(std::shared_ptr<GameObject> gameObject) {}
+void GameEngine::AddGameObject(std::shared_ptr<GameObject> gameObject) {
+    // Will be first added to our buffer vector of objects to be added so that we dont change mAliveObjects while its being used
+    mObjectsToAdd.push_back(gameObject);
+}
 
 /**
  * @method Run
@@ -29,6 +32,18 @@ void GameEngine::Run() {
     while (true)  // window is open
     {
         // 0. Remove any objects that are now dead
+        size_t write = 0;
+        // O(n) time
+        for (size_t read = 0; read < mAliveObjects.size(); ++read) {
+            // This will only copy in alive objects, skipping dead ones
+            if (mAliveObjects[read]->IsAlive()) {
+                mAliveObjects[write] = mAliveObjects[read];
+                ++write;
+            }
+        }
+        // Trim the end of aliveObject vector to write - 1 size
+        // O(1) time
+        mAliveObjects.resize(write);
 
         // 1. Activate and initialize any objects added during the last frame
 

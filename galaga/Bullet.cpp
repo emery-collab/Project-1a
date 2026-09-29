@@ -1,5 +1,5 @@
 #include "Bullet.h"
-
+#include "Enemy.h"
 Bullet::Bullet(CMPUT350::Point2D location, CMPUT350::Point2D heading, bool player)
 {
     isPlayer = player;
@@ -10,7 +10,6 @@ Bullet::Bullet(CMPUT350::Point2D location, CMPUT350::Point2D heading, bool playe
 
     ending = location + headingAmt;
 
-    
     mLine = CMPUT350::Line(location,ending);
 
     length = mLine.Length();
@@ -18,6 +17,7 @@ Bullet::Bullet(CMPUT350::Point2D location, CMPUT350::Point2D heading, bool playe
     mAlive = true;
 
     mBounds = CMPUT350::Rect(starting, ending);
+    
 }
 
 bool Bullet::IsPlayerBullet()
@@ -65,6 +65,11 @@ void Bullet::RenderForeground(CMPUT350::GameContext* context)
 
 void Bullet::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj)
 {
+    std::shared_ptr<Enemy> enemy = std::dynamic_pointer_cast<Enemy>(obj);
+
+    if(enemy != nullptr && isPlayer){
+        Kill();
+    }
 }
 
 void Bullet::Kill()

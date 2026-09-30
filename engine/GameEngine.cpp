@@ -150,15 +150,34 @@ void GameEngine::Run() {
             object->LateUpdate(&context);
         }
 
-
         // Clear window
-
+        mWindow->clear();
 
         // 6. Render background
+        
+        // For alive objects, dynamic_pointer_cast again to get if its a graphics object or not
+        for (auto& object : mAliveObjects) {
+            auto graphics = std::dynamic_pointer_cast<GraphicsObject>(object);
+
+            // If it is a graphics object, call its render BACKGROUND logic FIRST
+            if (graphics != nullptr)
+                graphics->RenderBackground(&context);
+        }
 
         // 7. Render foreground
 
+        // For alive objects, dynamic_pointer_cast again to get if its a graphics object or not
+        for (auto& object : mAliveObjects) {
+            auto graphics = std::dynamic_pointer_cast<GraphicsObject>(object);
+
+            // If it is a graphics object, call its render FOREGROUND logic SECOND
+            if (graphics != nullptr)
+                graphics->RenderForeground(&context);
+        }
+
         // Actually render to window
+        mWindow->display();
+
     }
 }
 

@@ -106,26 +106,43 @@ void GameEngine::Run() {
             }
         }
 
-        /*
-        if (event->is<sf::Event::Closed>()) {
-            mWindow->close();
-        }
-
-        if (const auto* keyPressed = event->getIf<sf::Event::TextEntered>()) {
-            if (keyPressed->unicode == 'p'){
-                // do something here
-            }
-            
-        }
-        */
-
         // 3. Update game objects
         for (auto& object : mAliveObjects) {
             object->Update(&context);
         }
 
         // 4. Process collision events
-        
+
+        // Compare each alive object with each other excactly once
+        for (size_t a = 0; a < mAliveObjects.size(); a++) {
+            auto objA = std::dynamic_pointer_cast<CollisionObject>(mAliveObjects[a]);
+
+            // Not Collision Object, skip to next loop iteration
+            if (objA == nullptr) 
+                continue;
+         
+            // This for loop specifies only comparing each object once since b starts at a + 1
+            for (size_t b = a + 1; b < mAliveObjects.size(); b++) {
+                auto objB = std::dynamic_pointer_cast<CollisionObject>(mAliveObjects[b]);
+
+                // Again, if not a Collision Object, skip to next loop iteration 
+                if (objB == nullptr)
+                continue;
+
+                // First, we get the bounding box for the first object, we then &= it with the bounding box for the other second object to be compared
+                Rect overlap = objA->GetBounds();
+
+                // Calculate overlap, since &= we assigned in mathutil.h returns 0 for width and height if there is no overlap
+                overlap &= objB->GetBounds();
+
+                // If there is overlap, call both objects respective collision implementation, with each other as arguments
+                if (overlap.width > 0 && overlap.height > 0) {
+                    objA->CollisionEnter(objB);
+                    objB->CollisionEnter(objA);
+
+                }
+            }    
+        }
 
 
         // 5. Late updates
@@ -135,6 +152,7 @@ void GameEngine::Run() {
 
 
         // Clear window
+
 
         // 6. Render background
 

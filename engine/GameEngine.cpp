@@ -6,8 +6,8 @@ namespace CMPUT350 {
 
 GameEngine::GameEngine(unsigned int width, unsigned int height, const std::string& name) {
 
-
-    // mFont = std::make_shared<sf::Font>();
+    // Create font
+    mFont = std::make_shared<sf::Font>();
 
     // Sample font loading code
     if (!mFont->openFromMemory(&_font, _font_len))
@@ -15,21 +15,16 @@ GameEngine::GameEngine(unsigned int width, unsigned int height, const std::strin
     	fprintf(stderr, "WARNING: Font did not load.\n");
     }
 
-
-
+    // Create window
     mWindow = std::make_shared<sf::RenderWindow>(sf::VideoMode({width, height}), name);
-
     mWindow->setFramerateLimit(30);
-
     
-
     // Make a shared pointer to mDrawContext
     mDrawContext = std::make_shared<DrawContext>(mWindow, mFont);
 
     // Set up the GameContext
     mGameContext.mEngineView = this;
     mGameContext.ScreenContext = mDrawContext.get();
-
 
 }
 
@@ -54,12 +49,7 @@ void GameEngine::AddGameObject(std::shared_ptr<GameObject> gameObject) {
  */
 void GameEngine::Run() {
 
-    GameContext context;
-
-    context.mEngineView = this;
-    context.ScreenContext = mDrawContext.get();
-
-    while (true)  // window is open
+    while (mWindow->isOpen())  // window is open
     {
         // 0. Remove any objects that are now dead
 
@@ -72,8 +62,7 @@ void GameEngine::Run() {
                 ++write;
             }
         }
-        // Trim the end of aliveObject vector to write - 1 size
-        // O(1) time
+        // Trim the end of aliveObject vector to write - 1 size and destroy the unused shared_ptrs
         mAliveObjects.resize(write);
 
         // 1. Activate and initialize any objects added during the last frame
@@ -100,7 +89,7 @@ void GameEngine::Run() {
                     
                     // Each alive object handles the event accordingly with their own logic
                     for (auto& object : mAliveObjects) {
-                        object->HandleKeyEvent(&context, key);
+                        object->HandleKeyEvent(&mGameContext, key);
                     }
                 }
             }
@@ -108,7 +97,7 @@ void GameEngine::Run() {
 
         // 3. Update game objects
         for (auto& object : mAliveObjects) {
-            object->Update(&context);
+            object->Update(&mGameContext);
         }
 
         // 4. Process collision events
@@ -147,7 +136,7 @@ void GameEngine::Run() {
 
         // 5. Late updates
         for (auto& object : mAliveObjects) {
-            object->LateUpdate(&context);
+            object->LateUpdate(&mGameContext);
         }
 
         // Clear window
@@ -161,7 +150,7 @@ void GameEngine::Run() {
 
             // If it is a graphics object, call its render BACKGROUND logic FIRST
             if (graphics != nullptr)
-                graphics->RenderBackground(&context);
+                graphics->RenderBackground(&mGameContext);
         }
 
         // 7. Render foreground
@@ -172,7 +161,7 @@ void GameEngine::Run() {
 
             // If it is a graphics object, call its render FOREGROUND logic SECOND
             if (graphics != nullptr)
-                graphics->RenderForeground(&context);
+                graphics->RenderForeground(&mGameContext);
         }
 
         // Actually render to window

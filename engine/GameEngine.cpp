@@ -80,10 +80,15 @@ void GameEngine::Run() {
             // Is window being closed?
             if (event->is<sf::Event::Closed>()){
                 mWindow->close();
-            
+
+            // Is window being resized?
+            } else if (event->is<sf::Event::Resized>()) {
+            // No implementation as of project1a
+
             // Is key press a within the text unicode range
             } else if (const auto* keyPressed = event->getIf<sf::Event::TextEntered>()) {
                 if (keyPressed->unicode < 128) {
+
                     // Convert to c++ char
                     char key = static_cast<char>(keyPressed->unicode);
                     

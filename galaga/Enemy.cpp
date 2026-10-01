@@ -1,5 +1,6 @@
 #include "Enemy.h"
 #include "Bullet.h"
+#include <iostream>
 
 Enemy::Enemy(CMPUT350::Point2D loc)
 {
@@ -41,8 +42,12 @@ void Enemy::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj
 {
     std::shared_ptr<Bullet> bullet = std::dynamic_pointer_cast<Bullet>(obj);
 
+    std::cerr << "Did I die?: " << IsAlive() << "\n";
+
     if(bullet != nullptr && bullet->IsPlayerBullet()){
         Kill();
+        
+        std::cerr << "Did I die?: " << IsAlive() << "\n";
     }
 }
 

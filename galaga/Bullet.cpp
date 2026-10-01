@@ -16,7 +16,7 @@ Bullet::Bullet(CMPUT350::Point2D location, CMPUT350::Point2D heading, bool playe
 
     mAlive = true;
 
-    mBounds = CMPUT350::Rect(starting, ending);
+    mBounds = CMPUT350::Rect(starting+ CMPUT350::Point2D(-2, 0), ending+ CMPUT350::Point2D(2, 0));
     
 }
 
@@ -35,7 +35,7 @@ void Bullet::Update(CMPUT350::GameContext* context)
     ending = ending + headingAmt;
 
     mLine = CMPUT350::Line(starting, ending);
-    mBounds = CMPUT350::Rect(starting,ending);
+    mBounds = CMPUT350::Rect(starting+ CMPUT350::Point2D(-2, 0),ending + CMPUT350::Point2D(2, 0));
     int windowHeight = context->ScreenContext->GetWindowHeight();
     int windowwidth = context->ScreenContext->GetWindowWidth();
 

@@ -1,12 +1,15 @@
+// Comments in this file were AI-generated (Claude); code written by the team.
 #ifndef PLAYER_H
 #define PLAYER_H
 
 #include "CollisionObject.h"
 #include "Bullet.h"
 
+// The player's ship; moves left/right and fires up to two bullets at a time
 class Player : public CMPUT350::CollisionObject
 {
 public:
+    // loc: center of the ship
     Player(CMPUT350::Point2D loc);
 
     // GameObject Functions
@@ -29,6 +32,7 @@ public:
     
 
 private:
+    // Rebuilds the ship's bounds and shape around loc
     void BuildShape(CMPUT350::Point2D loc);
     bool mAlive;
     CMPUT350::Point2D location;
@@ -36,6 +40,7 @@ private:
     float height = 40;
     CMPUT350::Rect mBounds;
 
+    // Rectangles making up the ship's drawing
     CMPUT350::Rect nozzle;
     CMPUT350::Rect nozzle2;
     CMPUT350::Rect body;
@@ -43,8 +48,9 @@ private:
     CMPUT350::Rect cockpit;
     CMPUT350::Rect thrusterL;
     CMPUT350::Rect thrusterR;
-    CMPUT350::Point2D bulletSpeed;
+    CMPUT350::Point2D bulletSpeed;  // Movement per frame of fired bullets
 
+    // Weak pointers so we can tell when a shot is gone without keeping it alive
     std::weak_ptr<Bullet> mShot2;
     std::weak_ptr<Bullet> mShot1;
 };

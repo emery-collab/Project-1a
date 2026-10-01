@@ -1,7 +1,9 @@
+// Comments in this file were AI-generated (Claude); code written by the team.
 #include "Enemy.h"
 #include "Bullet.h"
 #include <iostream>
 
+// Creates a 30x30 enemy centered at loc
 Enemy::Enemy(CMPUT350::Point2D loc)
 {
     float h = 30;
@@ -33,11 +35,13 @@ void Enemy::RenderBackground(CMPUT350::GameContext* context)
 {
 }
 
+// Draws the enemy as a red square
 void Enemy::RenderForeground(CMPUT350::GameContext* context)
 {
     context->ScreenContext->DrawRect(mBounds, CMPUT350::Colors::red);
 }
 
+// Dies when hit by a player bullet
 void Enemy::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj)
 {
     std::shared_ptr<Bullet> bullet = std::dynamic_pointer_cast<Bullet>(obj);
@@ -51,6 +55,7 @@ void Enemy::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj
     }
 }
 
+// Marks the enemy dead so the engine removes it next frame
 void Enemy::Kill()
 {
     mAlive = false;
@@ -61,6 +66,7 @@ bool Enemy::IsAlive() const
     return mAlive;
 }
 
+// Returns the bounding box used for collisions
 const CMPUT350::Rect& Enemy::GetBounds()
 {
     return mBounds;

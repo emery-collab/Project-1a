@@ -1,12 +1,15 @@
+// Comments in this file were AI-generated (Claude); code written by the team.
 #ifndef ENEMY_H
 #define ENEMY_H
 
 #include "CollisionObject.h"
 #include "GameContext.h"
 
+// A stationary enemy drawn as a square; dies when hit by a player bullet
 class Enemy : public CMPUT350::CollisionObject
 {
 public:
+    // loc: center of the enemy
     Enemy(CMPUT350::Point2D loc);
 
     // GameObject Functions

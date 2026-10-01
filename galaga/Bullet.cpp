@@ -1,5 +1,8 @@
+// Comments in this file were AI-generated (Claude); code written by the team.
 #include "Bullet.h"
 #include "Enemy.h"
+
+// Creates a bullet at location that moves by heading each frame
 Bullet::Bullet(CMPUT350::Point2D location, CMPUT350::Point2D heading, bool player)
 {
     isPlayer = player;
@@ -16,10 +19,12 @@ Bullet::Bullet(CMPUT350::Point2D location, CMPUT350::Point2D heading, bool playe
 
     mAlive = true;
 
+    // Widen bounds by 4px so a vertical bullet doesn't have 0 width (0 width never collides)
     mBounds = CMPUT350::Rect(starting+ CMPUT350::Point2D(-2, 0), ending+ CMPUT350::Point2D(2, 0));
     
 }
 
+// Returns true if the player fired this bullet
 bool Bullet::IsPlayerBullet()
 {
     return isPlayer;
@@ -29,12 +34,14 @@ void Bullet::Initialize(CMPUT350::GameContext* context)
 {
 }
 
+// Moves the bullet one step along its heading and kills it once it leaves the screen
 void Bullet::Update(CMPUT350::GameContext* context)
 {
     starting = ending;
     ending = ending + headingAmt;
 
     mLine = CMPUT350::Line(starting, ending);
+    // Bounds cover the previous and current positions so the bullet can't skip past an enemy
     mBounds = CMPUT350::Rect(starting+ CMPUT350::Point2D(-2, 0),ending + CMPUT350::Point2D(2, 0));
     int windowHeight = context->ScreenContext->GetWindowHeight();
     int windowwidth = context->ScreenContext->GetWindowWidth();
@@ -57,12 +64,14 @@ void Bullet::RenderBackground(CMPUT350::GameContext* context)
 {
 }
 
+// Draws the bullet as a white line
 void Bullet::RenderForeground(CMPUT350::GameContext* context)
 {
     //Do we want different colors for enemy and player bullets?
     context->ScreenContext->DrawLine(mLine.p1, mLine.p2, 4, CMPUT350::Colors::white);
 }
 
+// Player bullets are destroyed when they hit an enemy
 void Bullet::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj)
 {
     std::shared_ptr<Enemy> enemy = std::dynamic_pointer_cast<Enemy>(obj);
@@ -72,6 +81,7 @@ void Bullet::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& ob
     }
 }
 
+// Marks the bullet dead so the engine removes it next frame
 void Bullet::Kill()
 {
     mAlive = false;
@@ -82,6 +92,7 @@ bool Bullet::IsAlive() const
     return mAlive;
 }
 
+// Returns the bounding box used for collisions
 const CMPUT350::Rect& Bullet::GetBounds()
 {
     return mBounds;

@@ -1,7 +1,9 @@
+// Comments in this file were AI-generated (Claude); code written by the team.
 #include <cassert>
 #include "Player.h"
 #include "Bullet.h"
 
+// Creates the ship centered at loc
 Player::Player(CMPUT350::Point2D loc)
 {
     mAlive = true;
@@ -24,6 +26,8 @@ void Player::LateUpdate(CMPUT350::GameContext* context)
 {
 }
 
+// A/D moves the ship, space fires if fewer than two bullets are on screen
+// Returns true if the key was handled
 bool Player::HandleKeyEvent(CMPUT350::GameContext* context, char key)
 {
     if ((key == 'a') || (key == 'A')) {
@@ -46,6 +50,7 @@ bool Player::HandleKeyEvent(CMPUT350::GameContext* context, char key)
     }
     if ((key == ' ')) {
         
+        // A shot slot is free once its bullet has been destroyed
         if(mShot1.expired()){
             std::shared_ptr<Bullet> bullet1 = std::make_shared<Bullet>(location,bulletSpeed, true);
             mShot1 = bullet1;
@@ -66,6 +71,7 @@ void Player::RenderBackground(CMPUT350::GameContext* context)
 {
 }
 
+// Draws the ship and its bounding box
 void Player::RenderForeground(CMPUT350::GameContext* context)
 {
     context->ScreenContext->FrameRect(mBounds, 3, CMPUT350::Colors::yellow);
@@ -78,10 +84,12 @@ void Player::RenderForeground(CMPUT350::GameContext* context)
 }
 
 
+// Player ignores collisions
 void Player::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj)
 {
 }
 
+// Marks the player dead so the engine removes it next frame
 void Player::Kill()
 {
     mAlive = false;
@@ -140,6 +148,7 @@ bool Player::IsAlive() const
     return mAlive;
 }
 
+// Returns the bounding box used for collisions
 const CMPUT350::Rect& Player::GetBounds()
 {
     return mBounds;

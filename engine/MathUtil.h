@@ -118,7 +118,39 @@ struct Line {
     }
     bool Crosses(Line other, Point2D &crossingPoint) const {
         // TODO: write this code
-        return false;
+        
+        // Get the variables in the equation we derived from class "((c-a) x cd / ab x cd) = t or ((a-c) x ab / cd x ab) = t"
+        // Take the cross for the denominator in both
+        Point2D ab = p2 - p1;
+        Point2D cd = other.p2 - other.p1;
+        Point2D cMinusA = other.p1 - p1;
+
+        float denominator = ab.Cross(cd);
+
+        // This section checks for the denominator being 0, if so they are parellel and never cross
+        // The epsilon is a tiny number used so that in case floating point arithmetic gives us something
+        // like 0.000000000001 when it should be 0, we still compare correctly. Checking less than epsilon
+        // instead of denominator == 0 was recommended by AI
+        constexpr float epsilon = 1e-6f;
+        if (std::abs(denominator) < epsilon) {
+            return false;
+        }
+
+        // Here we plug into the formulas written in the initial comment
+        float u = cMinusA.Cross(ab) / denominator;
+        float t = cMinusA.Cross(cd) / denominator;
+
+        // Check if the intersection lies on both segments
+        // If we don't check both, we are only checking line to segment intersection, not segment to segment
+        if (t < 0.0f || t > 1.0f || u < 0.0f || u > 1.0f) {
+            return false;
+        }
+
+        // We know there is collision now
+        // Set the crossing point equal to the starting point of line one + the scalar t applied to the direction vector between a and b
+        crossingPoint = p1 + ab * t;
+        return true;
+
     }
 };
 

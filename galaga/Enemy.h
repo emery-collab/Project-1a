@@ -16,13 +16,15 @@ public:
     void Initialize(CMPUT350::GameContext* context) override;
     void Update(CMPUT350::GameContext* context) override;
     void LateUpdate(CMPUT350::GameContext* context) override;
-    bool HandleKeyEvent(CMPUT350::GameContext* context, char key) override;
+    // bool HandleKeyEvent(CMPUT350::GameContext* context, char key) override;
     bool IsAlive() const override;
     void Kill() override;
 
     // Graphics Object Functions
     void RenderBackground(CMPUT350::GameContext* context) override;
     void RenderForeground(CMPUT350::GameContext* context) override;
+    CMPUT350::Point2D GetLocation() const override;
+    float GetRotation() const override;
 
 
     // Collision Object Functions

@@ -26,10 +26,12 @@ void Enemy::LateUpdate(CMPUT350::GameContext* context)
 {
 }
 
+/*
 bool Enemy::HandleKeyEvent(CMPUT350::GameContext* context, char key)
 {
     return false;
 }
+*/
 
 void Enemy::RenderBackground(CMPUT350::GameContext* context)
 {
@@ -70,4 +72,16 @@ bool Enemy::IsAlive() const
 const CMPUT350::Rect& Enemy::GetBounds()
 {
     return mBounds;
+}
+
+// PART B PLACEHOLDER: GetLocation/GetRotation are now pure virtual in GraphicsObject.
+// Stub values for now, so the class still compiles.
+CMPUT350::Point2D Enemy::GetLocation() const
+{
+    return CMPUT350::Point2D(0, 0);
+}
+
+float Enemy::GetRotation() const
+{
+    return 0.0f;
 }

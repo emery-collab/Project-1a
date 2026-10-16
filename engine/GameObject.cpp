@@ -1,5 +1,5 @@
 #include "GameObject.h"
-
+#include <string>
 namespace CMPUT350 {
 
 void GameObject::Initialize(GameContext *context) { return; }

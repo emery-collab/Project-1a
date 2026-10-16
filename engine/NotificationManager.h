@@ -1,7 +1,12 @@
-
 #ifndef NOTIFICATIONMANAGER_H
 #define NOTIFICATIONMANAGER_H
 
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+namespace CMPUT350 {
 class GameObject;
 
 class NotificationManager {
@@ -12,3 +17,6 @@ public:
 private:
     std::unordered_map<std::string, std::vector<std::weak_ptr<GameObject>>> mListeners;
 };
+}
+
+#endif

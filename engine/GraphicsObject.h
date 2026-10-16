@@ -2,7 +2,8 @@
 #define GRAPHICS_OBJECT_H
 
 #include "GameObject.h"
-
+#include "GraphicsObject.h"
+#include "MathUtil.h"
 namespace CMPUT350 {
 
 class GameContext;

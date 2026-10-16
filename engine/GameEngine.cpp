@@ -1,5 +1,6 @@
 #include "GameEngine.h"
-
+#include "NotificationManager.h"
+#include <string>
 /// @brief
 namespace CMPUT350 {
 #include "FontData.h"
@@ -25,6 +26,7 @@ GameEngine::GameEngine(unsigned int width, unsigned int height, const std::strin
     // Set up the GameContext
     mGameContext.mEngineView = this;
     mGameContext.ScreenContext = mDrawContext.get();
+    mGameContext.mNotificationManager =  &mNotificationManager;
 
 }
 
@@ -36,6 +38,15 @@ GameEngine::~GameEngine() {
 
 }
 
+void GameEngine::InstallKeyDownNotification(int key, const std::string& notification){
+    mKeyDownNotification[key].push_back(notification);
+
+
+}
+void GameEngine::InstallKeyUpNotification(int key, const std::string& notification){
+    mKeyUpNotification[key].push_back(notification);
+
+}
 void GameEngine::AddGameObject(std::shared_ptr<GameObject> gameObject) {
     // Will be first added to our buffer vector of objects to be added so that we dont change mAliveObjects while its being used
     mObjectsToAdd.push_back(gameObject);
@@ -70,6 +81,7 @@ void GameEngine::Run() {
         // Go through vector of objects, append to aliveObjects, and initialize with game context
         for (auto& object : mObjectsToAdd) {
             mAliveObjects.push_back(object);
+            mGameContext.CurrObject = object;
             object->Initialize(&mGameContext);
         }
         mObjectsToAdd.clear();
@@ -83,18 +95,27 @@ void GameEngine::Run() {
 
             // Is window being resized?
             } else if (event->is<sf::Event::Resized>()) {
-            // No implementation as of project1a
+            
+            // Is key is pressed
+            } else if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
 
-            // Is key press a within the text unicode range
-            } else if (const auto* keyPressed = event->getIf<sf::Event::TextEntered>()) {
-                if (keyPressed->unicode < 128) {
-
-                    // Convert to c++ char
-                    char key = static_cast<char>(keyPressed->unicode);
+                auto key = static_cast<int>(keyPressed->scancode);
+                auto validKey = mKeyDownNotification.find(key);
+                if(validKey != mKeyDownNotification.end()){
+                    for (const std::string& notification : validKey->second) {
+                        mNotificationManager.Notify(notification);
+                    }
                     
-                    // Each alive object handles the event accordingly with their own logic
-                    for (auto& object : mAliveObjects) {
-                        object->HandleKeyEvent(&mGameContext, key);
+                }
+                
+            } else if (const auto* keyPressed = event->getIf<sf::Event::KeyReleased>()) {
+
+                auto key = static_cast<int>(keyPressed->scancode);
+                auto validKey = mKeyUpNotification.find(key);
+
+                if(validKey != mKeyUpNotification.end()){
+                    for (const std::string& notification : validKey->second) {
+                        mNotificationManager.Notify(notification);
                     }
                 }
             }

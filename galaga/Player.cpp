@@ -2,23 +2,83 @@
 #include <cassert>
 #include "Player.h"
 #include "Bullet.h"
-
+#include "NotificationManager.h"
+#include "Keyboard.h"
 // Creates the ship centered at loc
 Player::Player(CMPUT350::Point2D loc)
 {
     mAlive = true;
     BuildShape(loc);
     bulletSpeed = CMPUT350::Point2D(0,-10);
+    movingLeft = false;
+    movingRight = false;
+    firing = false;
 
 
 }
 
 void Player::Initialize(CMPUT350::GameContext* context)
 {
+    //Temp, need to move to galaga file.
+    //A
+    context->mEngineView->InstallKeyDownNotification(0, "MoveLeft");
+    // //left
+    context->mEngineView->InstallKeyDownNotification(87, "MoveLeft");
+    // //D
+    context->mEngineView->InstallKeyDownNotification(3, "MoveRight");
+    // //Right
+    context->mEngineView->InstallKeyDownNotification(86, "MoveRight");
+    // //Space
+    context->mEngineView->InstallKeyDownNotification(40, "Fire");
+    //A
+    context->mEngineView->InstallKeyUpNotification(0, "StopMoveLeft");
+    //left
+    context->mEngineView->InstallKeyUpNotification(87, "StopMoveLeft");
+    //D
+    context->mEngineView->InstallKeyUpNotification(3, "StopMoveRight");
+    //Right
+    context->mEngineView->InstallKeyUpNotification(86, "StopMoveRight");
+    //Space
+    //mKeyUpNotification.insert({40, "Fire"});
+    //registers for all key inputs
+    context->mNotificationManager->Register(context->CurrObject, "MoveLeft");
+    context->mNotificationManager->Register(context->CurrObject, "MoveRight");
+    context->mNotificationManager->Register(context->CurrObject, "Fire");
+    context->mNotificationManager->Register(context->CurrObject, "StopMoveLeft");
+    context->mNotificationManager->Register(context->CurrObject, "StopMoveRight");
 }
 
 void Player::Update(CMPUT350::GameContext* context)
 {
+    if(movingLeft){
+        location.x -= 8;
+        if(location.x < 30){
+            location.x = 30;
+        }
+        BuildShape(location);
+    }
+    if(movingRight){
+        location.x += 8;
+        if(location.x > context->ScreenContext->GetWindowWidth()-30){
+            location.x =  context->ScreenContext->GetWindowWidth()-30;
+        }
+        BuildShape(location);
+    }
+    if(firing){
+        if(mShot1.expired()){
+            std::shared_ptr<Bullet> bullet1 = std::make_shared<Bullet>(location,bulletSpeed, true);
+            mShot1 = bullet1;
+            context->mEngineView->AddGameObject(bullet1);
+            
+        }
+        else if(mShot2.expired()){
+            std::shared_ptr<Bullet> bullet2 = std::make_shared<Bullet>(location,bulletSpeed, true);
+            mShot2 = bullet2;
+            context->mEngineView->AddGameObject(bullet2);
+        }
+        firing = false;
+    }
+
 
 }
 
@@ -26,8 +86,31 @@ void Player::LateUpdate(CMPUT350::GameContext* context)
 {
 }
 
+void Player::ReceiveNotification(const std::string& key){
+    if ((key == "MoveLeft")) {
+        movingLeft = true;
+    }
+    if ((key == "MoveRight")) {
+        movingRight = true;
+    }
+    if ((key == "Fire")) {
+        firing = true;
+    }
+    if ((key == "StopMoveLeft")) {
+        movingLeft = false;
+    }
+    if ((key == "StopMoveRight")) {
+        movingRight = false;
+    }
+    
+    
+
+}
+
 // A/D moves the ship, space fires if fewer than two bullets are on screen
 // Returns true if the key was handled
+// Old Part 1a key logic kept below for reference while moving it to the notification system.
+/*
 bool Player::HandleKeyEvent(CMPUT350::GameContext* context, char key)
 {
     if ((key == 'a') || (key == 'A')) {
@@ -66,6 +149,7 @@ bool Player::HandleKeyEvent(CMPUT350::GameContext* context, char key)
     }
     return false;
 }
+*/
 
 void Player::RenderBackground(CMPUT350::GameContext* context)
 {
@@ -152,4 +236,16 @@ bool Player::IsAlive() const
 const CMPUT350::Rect& Player::GetBounds()
 {
     return mBounds;
+}
+
+// PART B PLACEHOLDER: GetLocation/GetRotation are now pure virtual in GraphicsObject.
+// Stub values for now, so the class still compiles.
+CMPUT350::Point2D Player::GetLocation() const
+{
+    return CMPUT350::Point2D(0, 0);
+}
+
+float Player::GetRotation() const
+{
+    return 0.0f;
 }

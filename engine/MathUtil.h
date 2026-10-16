@@ -109,16 +109,35 @@ struct Line {
        return p1.Distance(p2);
     }
     Point2D ClosestPoint(const Point2D &p) const {
+
+        Point2D direction = p2 - p1;
+        Point2D fromStart = p - p1;
+
+        float lengthSquared = direction.Dot(direction);
+
+        // A segment with a length of 0 is just a single point
+        if (lengthSquared == 0.0f) {
+            return p1;
+        }
+
+        float t = fromStart.Dot(direction) / lengthSquared;
+
+        // Restrict the projection to the segment [p1, p2]
+        t = std::max(0.0f, std::min(1.0f, t));
+        
+        return p1 + direction * t;
+
+        /*
         if(p.Distance(p1)< p.Distance(p2)){
             return p1;
         }
         else{
             return p2;
         }
+        */
     }
     bool Crosses(Line other, Point2D &crossingPoint) const {
-        // TODO: write this code
-        
+
         // Get the variables in the equation we derived from class "((c-a) x cd / ab x cd) = t or ((a-c) x ab / cd x ab) = t"
         // Take the cross for the denominator in both
         Point2D ab = p2 - p1;
@@ -155,7 +174,7 @@ struct Line {
 };
 
 static std::ostream &operator<<(std::ostream &os, const Line &l) {
-    // TODO: write this code
+    os << "(" << l.p1 << " -> " << l.p2 << ")";
     return os;
 }
 
@@ -212,7 +231,8 @@ struct Rect {
         return *this;
     }
     Rect &operator|=(const Line &other) {
-        // TODO: write this code
+        *this |= other.p1;
+        *this |= other.p2;
         return *this;
     }
     Rect &operator&=(const Rect &other) {
@@ -230,11 +250,12 @@ struct Rect {
         return *this;
     }
     Rect &operator+=(const Point2D &other) {
-        // TODO: write this code
+        topLeft += other;
         return *this;
     }
     Rect operator+(const Point2D &other) const {
-        // TODO: write this code
+        Rect result = *this;
+        result += other;
         return *this;
     }
     void Inset(int inset) {
@@ -257,7 +278,7 @@ struct Rect {
 };
 
 static std::ostream &operator<<(std::ostream &os, const Rect &l) {
-    // TODO: write this code
+    os << "Rect(topLeft=" << l.topLeft << ", w: " << l.width << ", h: " << l.height << ")";
     return os;
 }
 

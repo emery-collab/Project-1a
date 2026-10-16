@@ -29,8 +29,8 @@ public:
     GameEngine& operator=(GameEngine&&) = delete;       // Prevent move-assignment
 
     void AddGameObject(std::shared_ptr<GameObject> gameObject) override;
-    virtual void InstallKeyDownNotification(int, const std::string &notification) = 0;
-    virtual void InstallKeyUpNotification(int, const std::string &notification) = 0;
+    void InstallKeyDownNotification(int, const std::string &notification);
+    void InstallKeyUpNotification(int, const std::string &notification);
 
     void Run();
 
@@ -44,8 +44,10 @@ private:
     std::shared_ptr<DrawContext> mDrawContext;
     GameContext mGameContext;
     NotificationManager mNotificationManager;
-    
-    // PLACEHOLDER (NotificationManager): the engine owns the NotificationManager instance
+    std::unordered_map< int, std::vector<std::string>> mKeyDownNotification;
+    std::unordered_map< int, std::vector<std::string>> mKeyUpNotification;
+
+
 };
 
 }  // namespace CMPUT350

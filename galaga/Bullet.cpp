@@ -55,10 +55,12 @@ void Bullet::LateUpdate(CMPUT350::GameContext* context)
 {
 }
 
+/*
 bool Bullet::HandleKeyEvent(CMPUT350::GameContext* context, char key)
 {
     return false;
 }
+*/
 
 void Bullet::RenderBackground(CMPUT350::GameContext* context)
 {
@@ -96,4 +98,16 @@ bool Bullet::IsAlive() const
 const CMPUT350::Rect& Bullet::GetBounds()
 {
     return mBounds;
+}
+
+// PART B PLACEHOLDER: GetLocation/GetRotation are now pure virtual in GraphicsObject.
+// Stub values for now, so the class still compiles.
+CMPUT350::Point2D Bullet::GetLocation() const
+{
+    return CMPUT350::Point2D(0, 0);
+}
+
+float Bullet::GetRotation() const
+{
+    return 0.0f;
 }

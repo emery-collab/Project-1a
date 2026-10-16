@@ -84,6 +84,10 @@ public:
         return bounds;
     }
 
+    // PART B PLACEHOLDER: GetLocation/GetRotation are now pure virtual in GraphicsObject.
+    CMPUT350::Point2D GetLocation() const override { return CMPUT350::Point2D(0, 0); }
+    float GetRotation() const override { return 0.0f; }
+
     bool IsAlive() const override
     {
         return mNumCollisions < 10;

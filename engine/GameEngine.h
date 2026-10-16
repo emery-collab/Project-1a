@@ -12,6 +12,7 @@ class GameEngine;
 #include "CollisionObject.h"
 #include "MathUtil.h"
 #include <SFML/Graphics.hpp>
+#include "NotificationManager.h"
 
 namespace CMPUT350 {
 
@@ -28,6 +29,8 @@ public:
     GameEngine& operator=(GameEngine&&) = delete;       // Prevent move-assignment
 
     void AddGameObject(std::shared_ptr<GameObject> gameObject) override;
+    void InstallKeyDownNotification(int, const std::string &notification);
+    void InstallKeyUpNotification(int, const std::string &notification);
 
     void Run();
 
@@ -40,6 +43,11 @@ private:
 
     std::shared_ptr<DrawContext> mDrawContext;
     GameContext mGameContext;
+    NotificationManager mNotificationManager;
+    std::unordered_map< int, std::vector<std::string>> mKeyDownNotification;
+    std::unordered_map< int, std::vector<std::string>> mKeyUpNotification;
+
+
 };
 
 }  // namespace CMPUT350

@@ -1,5 +1,6 @@
 #include "GameEngine.h"
-
+#include "NotificationManager.h"
+#include <string>
 /// @brief
 namespace CMPUT350 {
 #include "FontData.h"
@@ -25,6 +26,8 @@ GameEngine::GameEngine(unsigned int width, unsigned int height, const std::strin
     // Set up the GameContext
     mGameContext.mEngineView = this;
     mGameContext.ScreenContext = mDrawContext.get();
+    mGameContext.mNotificationManager = mNotificationManager.get();
+    // PLACEHOLDER (NotificationManager): point the GameContext at the engine's NotificationManager
 
 }
 
@@ -35,6 +38,8 @@ GameEngine::~GameEngine() {
     }
 
 }
+
+// PLACEHOLDER (EngineView): define InstallKeyDownNotification / InstallKeyUpNotification here
 
 void GameEngine::AddGameObject(std::shared_ptr<GameObject> gameObject) {
     // Will be first added to our buffer vector of objects to be added so that we dont change mAliveObjects while its being used
@@ -70,6 +75,7 @@ void GameEngine::Run() {
         // Go through vector of objects, append to aliveObjects, and initialize with game context
         for (auto& object : mObjectsToAdd) {
             mAliveObjects.push_back(object);
+            // PLACEHOLDER (GameContext): CurrObject should refer to this object before Initialize runs
             object->Initialize(&mGameContext);
         }
         mObjectsToAdd.clear();
@@ -92,9 +98,8 @@ void GameEngine::Run() {
                     // Convert to c++ char
                     char key = static_cast<char>(keyPressed->unicode);
                     
-                    // Each alive object handles the event accordingly with their own logic
                     for (auto& object : mAliveObjects) {
-                        object->HandleKeyEvent(&mGameContext, key);
+                        mNotificationManager.Notify(str(key));
                     }
                 }
             }

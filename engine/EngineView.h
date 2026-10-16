@@ -11,6 +11,8 @@ class GameObject;
 class EngineView {
 public:
     virtual void AddGameObject(std::shared_ptr<GameObject> gameObject) = 0;
+    virtual void InstallKeyDownNotification(int, const std::string &notification) = 0;
+    virtual void InstallKeyUpNotification(int, const std::string &notification) = 0;
 };
 
 }  // namespace CMPUT350

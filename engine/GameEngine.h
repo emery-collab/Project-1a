@@ -28,6 +28,11 @@ public:
     GameEngine& operator=(const GameEngine&) = delete;  // Prevent assignment
     GameEngine& operator=(GameEngine&&) = delete;       // Prevent move-assignment
 
+    tGameObject::const_iterator begin() const override;
+    tGameObject::const_iterator cbegin() const override;
+    tGameObject::const_iterator end() const override;
+    tGameObject::const_iterator cend() const override;
+    
     void AddGameObject(std::shared_ptr<GameObject> gameObject) override;
     void InstallKeyDownNotification(int, const std::string &notification);
     void InstallKeyUpNotification(int, const std::string &notification);

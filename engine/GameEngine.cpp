@@ -579,6 +579,19 @@ void GameEngine::Run() {
 
     }
 }
+GameEngine::tGameObject::const_iterator GameEngine::cbegin() const {
+    return mAliveObjects.cbegin();
+
+}
+GameEngine::tGameObject::const_iterator GameEngine::begin() const {
+    return mAliveObjects.begin();
+}
+GameEngine::tGameObject::const_iterator GameEngine::cend() const {
+    return mAliveObjects.cend();
+}
+GameEngine::tGameObject::const_iterator GameEngine::end() const {
+    return mAliveObjects.end();
+}
 
 // Sample code for processing events
 

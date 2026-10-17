@@ -2,7 +2,7 @@
 #include "Enemy.h"
 #include "Bullet.h"
 #include <iostream>
-
+#include "NotificationManager.h"
 // Creates a 30x30 enemy centered at loc
 Enemy::Enemy(CMPUT350::Point2D loc)
 {
@@ -30,6 +30,9 @@ void Enemy::Update(CMPUT350::GameContext* context)
 
 void Enemy::LateUpdate(CMPUT350::GameContext* context)
 {
+    if(!mAlive){
+        context->mNotificationManager->Notify("EnemyDestroyed");
+    }
 }
 
 /*

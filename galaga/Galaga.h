@@ -6,9 +6,10 @@
 #include <vector>
 #include "NotificationManager.h"
 #include "GameObject.h"
-
+#include "Player.h"
 enum class States{
-    kStartUp, kWaves, kWaitingForGameToBegin, kGamePlay, kGameOver
+    kStartUp, kWaves, kWaitingForGameToBegin, kGamePlay, kGameOver,
+    kRespawn
 };
 namespace CMPUT350 {
 
@@ -26,6 +27,9 @@ public:
     virtual void GamePlay(GameContext* context);
     virtual void GameOver(GameContext* context);
     void RenderUI(GameContext *context) override;
+    void ChangeState(States next, GameContext *context);
+    void ReceiveNotification(const std::string& key)override;
+    virtual void Respawn(GameContext* context);
 
 private:
     float mWidth;
@@ -35,6 +39,11 @@ private:
     int mScore;
     int mLives;
     int mLevel;
+    int mStateStartFrame;
+    int mEnemiesAlive;
+    int mCredits;
+    bool mGameStart;
+    std::weak_ptr<Player> mPlayer;
 };
 
 }  // namespace CMPUT350

@@ -41,7 +41,8 @@ private:
     int mLevel;
     int mStateStartFrame;
     int mEnemiesAlive;
-    int mCredits
+    int mCredits;
+    bool mGameStart;
     std::weak_ptr<Player> mPlayer;
 };
 

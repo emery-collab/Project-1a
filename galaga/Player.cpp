@@ -19,25 +19,7 @@ Player::Player(CMPUT350::Point2D loc)
 
 void Player::Initialize(CMPUT350::GameContext* context)
 {
-    //Temp, need to move to galaga file.
-    //A
-    context->mEngineView->InstallKeyDownNotification(0, "MoveLeft");
-    // //left
-    context->mEngineView->InstallKeyDownNotification(87, "MoveLeft");
-    // //D
-    context->mEngineView->InstallKeyDownNotification(3, "MoveRight");
-    // //Right
-    context->mEngineView->InstallKeyDownNotification(86, "MoveRight");
-    // //Space
-    context->mEngineView->InstallKeyDownNotification(40, "Fire");
-    //A
-    context->mEngineView->InstallKeyUpNotification(0, "StopMoveLeft");
-    //left
-    context->mEngineView->InstallKeyUpNotification(87, "StopMoveLeft");
-    //D
-    context->mEngineView->InstallKeyUpNotification(3, "StopMoveRight");
-    //Right
-    context->mEngineView->InstallKeyUpNotification(86, "StopMoveRight");
+
     //Space
     //mKeyUpNotification.insert({40, "Fire"});
     //registers for all key inputs

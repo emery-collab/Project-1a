@@ -25,13 +25,16 @@ public:
     // Graphics Object Functions
     void RenderBackground(CMPUT350::GameContext* context) override;
     void RenderForeground(CMPUT350::GameContext* context) override;
+    // new virtual functions for partb inherited from collisionobject.h
     CMPUT350::Point2D GetLocation() const override;
     float GetRotation() const override;
-
+    const std::vector<CMPUT350::Shape>& GetShapes() override;
 
     // Collision Object Functions
     void CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj) override;
     const CMPUT350::Rect& GetBounds() override;
+
+
 
     
 
@@ -53,6 +56,9 @@ private:
     CMPUT350::Rect thrusterL;
     CMPUT350::Rect thrusterR;
     CMPUT350::Point2D bulletSpeed;  // Movement per frame of fired bullets
+
+    // new vector to hold collision shapes in partb
+    std::vector<CMPUT350::Shape> mShapes;
 
     // Weak pointers so we can tell when a shot is gone without keeping it alive
     std::weak_ptr<Bullet> mShot2;

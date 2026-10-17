@@ -104,10 +104,30 @@ const CMPUT350::Rect& Bullet::GetBounds()
 // Stub values for now, so the class still compiles.
 CMPUT350::Point2D Bullet::GetLocation() const
 {
-    return CMPUT350::Point2D(0, 0);
+    return starting;
 }
 
 float Bullet::GetRotation() const
 {
     return 0.0f;
 }
+
+const std::vector<CMPUT350::Shape>& Bullet::GetShapes() 
+{
+    mShapes.clear();
+    // The bullet's location is starting.
+    // Represent the swept line relative to that location.
+    mShapes.push_back(CMPUT350::Line(CMPUT350::Point2D(0, 0), headingAmt));
+
+    return mShapes;
+}
+
+void Bullet::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj, const CMPUT350::Point2D& collisionPoint)
+{
+    // The engine supplies this point in local coordinates
+    // for the object whose line caused the collision.
+    // void the collisionpoint for now to avoid warnings/errors until fully implemented later. forward the call to collisionenter(obj)
+    (void)collisionPoint;
+    CollisionEnter(obj);
+}
+

@@ -25,11 +25,14 @@ public:
     // Graphics Object Functions
     void RenderBackground(CMPUT350::GameContext* context) override;
     void RenderForeground(CMPUT350::GameContext* context) override;
+    // new virtual functions for partb inherited from collisionobject.h
     CMPUT350::Point2D GetLocation() const override;
     float GetRotation() const override;
+    const std::vector<CMPUT350::Shape>& GetShapes() override;
 
     // Collision Object Functions
     void CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj) override;
+    void CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj, const CMPUT350::Point2D& collisionPoint) override;
     const CMPUT350::Rect& GetBounds() override;
 
 private:
@@ -41,6 +44,9 @@ private:
     CMPUT350::Point2D starting;    // Position last frame
     CMPUT350::Point2D ending;      // Position this frame
     CMPUT350::Point2D headingAmt;  // Movement per frame
+
+    // new partb member
+    std::vector<CMPUT350::Shape> mShapes;
 
 };
 #endif // BULLET_H

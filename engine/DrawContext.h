@@ -41,6 +41,17 @@ public:
     int GetWindowHeight();
 
 private:
+    // new rotation members for partb
+	friend class GameEngine;
+	void SetContextOffset(Point2D p);
+	void SetContextRotation(float rotation);
+	Point2D Transform(Point2D p);
+	Point2D ReverseTransform(Point2D p);
+	Rect Transform(Rect r); // Rotates rectangle and computes new bounding box after rotation
+
+    Point2D mContextOffset{0.0f, 0.0f};
+    float mContextRotation = 0.0f;
+
     std::shared_ptr<sf::RenderWindow> mWindow;
     std::shared_ptr<sf::Font> mFont;
 };

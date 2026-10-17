@@ -42,6 +42,7 @@ private:
     std::vector<std::shared_ptr<GameObject>> mObjectsToAdd;
 
     std::shared_ptr<DrawContext> mDrawContext;
+    std::shared_ptr<DrawContext> mDrawContextGUI;
     GameContext mGameContext;
     NotificationManager mNotificationManager;
     std::unordered_map< int, std::vector<std::string>> mKeyDownNotification;

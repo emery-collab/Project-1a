@@ -23,10 +23,16 @@ GameEngine::GameEngine(unsigned int width, unsigned int height, const std::strin
     // Make a shared pointer to mDrawContext
     mDrawContext = std::make_shared<DrawContext>(mWindow, mFont);
 
+
+    mDrawContextGUI = std::make_shared<DrawContext>(mWindow, mFont);
+
     // Set up the GameContext
     mGameContext.mEngineView = this;
     mGameContext.ScreenContext = mDrawContext.get();
+    mGameContext.GUIContext = mDrawContextGUI.get();
     mGameContext.mNotificationManager =  &mNotificationManager;
+    mGameContext.currentFrame = 0;
+
 
 }
 
@@ -62,7 +68,7 @@ void GameEngine::Run() {
 
     while (mWindow->isOpen())  // window is open
     {
-        // 0. Remove any objects that are now dead
+        mGameContext.currentFrame++;
 
         size_t write = 0;
         // O(n) time
@@ -188,6 +194,9 @@ void GameEngine::Run() {
             // If it is a graphics object, call its render FOREGROUND logic SECOND
             if (graphics != nullptr)
                 graphics->RenderForeground(&mGameContext);
+        
+            object->RenderUI(&mGameContext);
+            
         }
 
         // Actually render to window

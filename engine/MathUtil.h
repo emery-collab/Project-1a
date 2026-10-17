@@ -109,21 +109,72 @@ struct Line {
        return p1.Distance(p2);
     }
     Point2D ClosestPoint(const Point2D &p) const {
+
+        Point2D direction = p2 - p1;
+        Point2D fromStart = p - p1;
+
+        float lengthSquared = direction.Dot(direction);
+
+        // A segment with a length of 0 is just a single point
+        if (lengthSquared == 0.0f) {
+            return p1;
+        }
+
+        float t = fromStart.Dot(direction) / lengthSquared;
+
+        // Restrict the projection to the segment [p1, p2]
+        t = std::max(0.0f, std::min(1.0f, t));
+        
+        return p1 + direction * t;
+
+        /*
         if(p.Distance(p1)< p.Distance(p2)){
             return p1;
         }
         else{
             return p2;
         }
+        */
     }
     bool Crosses(Line other, Point2D &crossingPoint) const {
-        // TODO: write this code
-        return false;
+
+        // Get the variables in the equation we derived from class "((c-a) x cd / ab x cd) = t or ((a-c) x ab / cd x ab) = t"
+        // Take the cross for the denominator in both
+        Point2D ab = p2 - p1;
+        Point2D cd = other.p2 - other.p1;
+        Point2D cMinusA = other.p1 - p1;
+
+        float denominator = ab.Cross(cd);
+
+        // This section checks for the denominator being 0, if so they are parellel and never cross
+        // The epsilon is a tiny number used so that in case floating point arithmetic gives us something
+        // like 0.000000000001 when it should be 0, we still compare correctly. Checking less than epsilon
+        // instead of denominator == 0 was recommended by AI
+        constexpr float epsilon = 1e-6f;
+        if (std::abs(denominator) < epsilon) {
+            return false;
+        }
+
+        // Here we plug into the formulas written in the initial comment
+        float u = cMinusA.Cross(ab) / denominator;
+        float t = cMinusA.Cross(cd) / denominator;
+
+        // Check if the intersection lies on both segments
+        // If we don't check both, we are only checking line to segment intersection, not segment to segment
+        if (t < 0.0f || t > 1.0f || u < 0.0f || u > 1.0f) {
+            return false;
+        }
+
+        // We know there is collision now
+        // Set the crossing point equal to the starting point of line one + the scalar t applied to the direction vector between a and b
+        crossingPoint = p1 + ab * t;
+        return true;
+
     }
 };
 
 static std::ostream &operator<<(std::ostream &os, const Line &l) {
-    // TODO: write this code
+    os << "(" << l.p1 << " -> " << l.p2 << ")";
     return os;
 }
 
@@ -180,7 +231,8 @@ struct Rect {
         return *this;
     }
     Rect &operator|=(const Line &other) {
-        // TODO: write this code
+        *this |= other.p1;
+        *this |= other.p2;
         return *this;
     }
     Rect &operator&=(const Rect &other) {
@@ -198,11 +250,12 @@ struct Rect {
         return *this;
     }
     Rect &operator+=(const Point2D &other) {
-        // TODO: write this code
+        topLeft += other;
         return *this;
     }
     Rect operator+(const Point2D &other) const {
-        // TODO: write this code
+        Rect result = *this;
+        result += other;
         return *this;
     }
     void Inset(int inset) {
@@ -225,7 +278,7 @@ struct Rect {
 };
 
 static std::ostream &operator<<(std::ostream &os, const Rect &l) {
-    // TODO: write this code
+    os << "Rect(topLeft=" << l.topLeft << ", w: " << l.width << ", h: " << l.height << ")";
     return os;
 }
 

@@ -31,11 +31,19 @@ void Galaga::Initialize(CMPUT350::GameContext* context){
     context->mEngineView->InstallKeyUpNotification(3, "StopMoveRight");
     //Right
     context->mEngineView->InstallKeyUpNotification(86, "StopMoveRight");
-    context->mEngineView->AddGameObject(std::make_shared<Stars>(250, CMPUT350::Rect(0, 0, 768, 1024)));
+    //Engine doesn't allow us to call things in initialize yet but it should work when it gets there. 
+    //context->mEngineView->AddGameObject(std::make_shared<Stars>(250, CMPUT350::Rect(0, 0, 768, 1024)));
 
 
 }
 void Galaga::Update(CMPUT350::GameContext* context){
+    bool mStarSpawned = false;
+    if(!mStarSpawned){
+        //temporary
+        context->mEngineView->AddGameObject(std::make_shared<Stars>(100, CMPUT350::Rect(0, 0, 768, 1024)));
+        mStarSpawned = true;
+    }
+
     switch (mStates)
     {
         case(States::kWaitingForGameToBegin):

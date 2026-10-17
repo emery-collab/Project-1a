@@ -3,7 +3,7 @@
 
 #include "GameObject.h"
 #include "GraphicsObject.h"
-#include "MathUtil.h"
+#include "MathUtil.h"e
 namespace CMPUT350 {
 
 class GameContext;

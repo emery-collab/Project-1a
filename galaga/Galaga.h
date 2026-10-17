@@ -25,12 +25,16 @@ public:
     virtual void Waves(GameContext* context);
     virtual void GamePlay(GameContext* context);
     virtual void GameOver(GameContext* context);
+    void RenderUI(GameContext *context) override;
 
 private:
     float mWidth;
     float mHeight;
     States mStates;
     bool mStarSpawned = false;
+    int mScore;
+    int mLives;
+    int mLevel;
 };
 
 }  // namespace CMPUT350

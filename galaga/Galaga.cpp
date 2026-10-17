@@ -12,6 +12,9 @@ Galaga::Galaga(float width, float height)
     mWidth = width;
     mHeight = height;
     mStates = States::kStartUp;
+    mScore = 0;
+    mLives = 3;
+    mLevel = 1;
 
 }
 
@@ -36,8 +39,6 @@ void Galaga::Initialize(CMPUT350::GameContext* context){
     context->mEngineView->InstallKeyUpNotification(86, "StopMoveRight");
     //Engine doesn't allow us to call things in initialize yet but it should work when it gets there. 
     //context->mEngineView->AddGameObject(std::make_shared<Stars>(250, CMPUT350::Rect(0, 0, 768, 1024)));
-    bool mStarSpawned = false;
-
 }
 void Galaga::Update(CMPUT350::GameContext* context){
     
@@ -95,6 +96,12 @@ void Galaga::GamePlay(GameContext* context){
 
 }
 void Galaga::GameOver(GameContext* context){
+
+}
+
+void Galaga::RenderUI(GameContext *context){
+    auto displayScore = "SCORE " + std::to_string(mScore)
+    context->GUIContext->DrawText(displayScore, size,  Point2D(10, 10), CMPUT350::Colors::white)
 
 }
 }

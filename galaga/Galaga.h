@@ -30,6 +30,7 @@ private:
     float mWidth;
     float mHeight;
     States mStates;
+    bool mStarSpawned = false;
 };
 
 }  // namespace CMPUT350

@@ -2,6 +2,9 @@
 #include "GameObject.h"
 #include "GameContext.h"
 #include "Stars.h"
+#include "Player.h"
+
+#include "Enemy.h"
 
 namespace CMPUT350 {
 Galaga::Galaga(float width, float height)
@@ -33,11 +36,11 @@ void Galaga::Initialize(CMPUT350::GameContext* context){
     context->mEngineView->InstallKeyUpNotification(86, "StopMoveRight");
     //Engine doesn't allow us to call things in initialize yet but it should work when it gets there. 
     //context->mEngineView->AddGameObject(std::make_shared<Stars>(250, CMPUT350::Rect(0, 0, 768, 1024)));
-
+    bool mStarSpawned = false;
 
 }
 void Galaga::Update(CMPUT350::GameContext* context){
-    bool mStarSpawned = false;
+    
     if(!mStarSpawned){
         //temporary
         context->mEngineView->AddGameObject(std::make_shared<Stars>(100, CMPUT350::Rect(0, 0, 768, 1024)));
@@ -59,7 +62,7 @@ void Galaga::Update(CMPUT350::GameContext* context){
             Waves(context);
             break;
         case (States::kGameOver):
-            GamePlay(context);
+            GameOver(context);
             break;
     }
 
@@ -69,9 +72,23 @@ void Galaga::WaitingForGameToBegin(GameContext* context){
 
 }
 void Galaga::StartUp(GameContext* context){
+    auto player = std::make_shared<Player>(CMPUT350::Point2D(768 / 2, 900));
+    context->mEngineView->AddGameObject(player);
+    mStates = States::kWaves;
 
 }
 void Galaga::Waves(GameContext* context){
+            
+    float ySpacing = 60;
+    float xSpacing = (768-100)/8;
+    for (int x = 0; x < 8; x++)
+    {
+        for(int y = 0; y < 5; y++){
+            auto enemy = std::make_shared<Enemy>(CMPUT350::Point2D(100 + x * xSpacing, y*ySpacing+100));
+            context->mEngineView->AddGameObject(enemy);
+        }
+    }
+    mStates = States::kGamePlay;
 
 }
 void Galaga::GamePlay(GameContext* context){

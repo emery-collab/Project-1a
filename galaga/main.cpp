@@ -3,7 +3,7 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Stars.h"
-/*
+
 class Ball : public CMPUT350::CollisionObject
 {
 public:
@@ -114,17 +114,17 @@ private:
 // would be in a C++ file
 std::random_device Ball::rd;
 std::mt19937 Ball::gen(rd());
-*/
+
 int main()
 {
     bool mBallSsample = false;
 
     if (mBallSsample)
-    {/*
+    {
         CMPUT350::GameEngine engine(1024, 768, "Ball Simulation");
         engine.AddGameObject(std::make_shared<Ball>(100));
         engine.AddGameObject(std::make_shared<Ball>(50));
-        engine.Run();*/
+        engine.Run();
     }
     else
     {

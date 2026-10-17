@@ -32,6 +32,15 @@ public:
     void InstallKeyDownNotification(int, const std::string &notification);
     void InstallKeyUpNotification(int, const std::string &notification);
 
+    // new iterators requried by gamecontext for partB
+    /*
+    using const_iterator = EngineView::const_iterator;
+    const_iterator cbegin() const override;
+    const_iterator cend() const override;
+    const_iterator begin() const override;
+    const_iterator end() const override;
+    */
+
     void Run();
 
 private:

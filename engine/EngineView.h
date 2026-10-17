@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 namespace CMPUT350 {
 
@@ -13,6 +14,15 @@ public:
     virtual void AddGameObject(std::shared_ptr<GameObject> gameObject) = 0;
     virtual void InstallKeyDownNotification(int, const std::string &notification) = 0;
     virtual void InstallKeyUpNotification(int, const std::string &notification) = 0;
+
+    // new partB functionality
+    /*
+    using const_iterator = tGameObject::const_iterator;
+	virtual const_iterator cbegin() const = 0;
+	virtual const_iterator cend() const = 0;
+	virtual const_iterator begin() const = 0;
+	virtual const_iterator end() const = 0;
+    */
 };
 
 }  // namespace CMPUT350

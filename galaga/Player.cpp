@@ -206,6 +206,22 @@ void Player::BuildShape(CMPUT350::Point2D loc){
     float cockpitheight = 5;
     cockpit = CMPUT350::Rect(CMPUT350::Point2D(leftCockpit,topCockpit), cockpitWidth, cockpitheight);
 
+
+    mShapes.clear();
+
+    // Convert a world-coordinate rectangle into a local-coordinate rectangle.
+    // lambda function
+    auto toLocal = [loc](const CMPUT350::Rect& rect) {
+        return CMPUT350::Rect(CMPUT350::Point2D(rect.topLeft.x - loc.x, rect.topLeft.y - loc.y), rect.width, rect.height);
+    };
+
+    mShapes.push_back(toLocal(nozzle));
+    mShapes.push_back(toLocal(nozzle2));
+    mShapes.push_back(toLocal(body));
+    mShapes.push_back(toLocal(cockpit));
+    mShapes.push_back(toLocal(thrusterL));
+    mShapes.push_back(toLocal(thrusterR));
+
 }
 
 bool Player::IsAlive() const
@@ -224,10 +240,16 @@ const CMPUT350::Rect& Player::GetBounds()
 // Stub values for now, so the class still compiles.
 CMPUT350::Point2D Player::GetLocation() const
 {
-    return CMPUT350::Point2D(0, 0);
+    return location;
 }
 
 float Player::GetRotation() const
 {
     return 0.0f;
 }
+
+const std::vector<CMPUT350::Shape>& Player::GetShapes()
+{
+    return mShapes;
+}
+

@@ -23,8 +23,10 @@ public:
     // Graphics Object Functions
     void RenderBackground(CMPUT350::GameContext* context) override;
     void RenderForeground(CMPUT350::GameContext* context) override;
+    // new virtual functions for partb inherited from collisionobject.h
     CMPUT350::Point2D GetLocation() const override;
     float GetRotation() const override;
+    const std::vector<CMPUT350::Shape>& GetShapes() override;
 
 
     // Collision Object Functions
@@ -35,6 +37,10 @@ private:
     bool mAlive;
     CMPUT350::Rect mBounds;
     float length;
+
+    // new member variables
+    std::vector<CMPUT350::Shape> mShapes;
+    CMPUT350::Point2D location;
 };
 
 

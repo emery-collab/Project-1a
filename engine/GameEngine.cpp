@@ -156,12 +156,365 @@ void GameEngine::Run() {
                 // Calculate overlap, since &= we assigned in mathutil.h returns 0 for width and height if there is no overlap
                 overlap &= objB->GetBounds();
 
-                // If there is overlap, call both objects respective collision implementation, with each other as arguments
-                if (overlap.width > 0 && overlap.height > 0) {
-                    objA->CollisionEnter(objB);
-                    objB->CollisionEnter(objA);
+                // Refactor part1A code to skip pairs whose bounding boxes do NOT overlap
+                //if (overlap.width <= 0 || overlap.height <= 0) {
+                //    continue;
+                //}
+                    //objA->CollisionEnter(objB);
+                    //objB->CollisionEnter(objA);
 
+                // Object locations and rotations.
+                Point2D posA = objA->GetLocation();
+                Point2D posB = objB->GetLocation();
+
+                float angleA = objA->GetRotation();
+                float angleB = objB->GetRotation();
+
+                // Retrieve the collision shapes in local coordinates.
+                const auto& shapesA = objA->GetShapes();
+                const auto& shapesB = objB->GetShapes();
+
+                // Actual shape comparisons go here.
+
+                constexpr float EPSILON = 1e-6f;
+
+                // Transform a local-space point into world coordinates.
+                auto transformPoint = [](Point2D p, Point2D pos, float angle) {
+                    float c = std::cos(angle);
+                    float s = std::sin(angle);
+
+                    return Point2D(
+                        p.x * c - p.y * s + pos.x,
+                        p.x * s + p.y * c + pos.y
+                    );
+                };
+
+                // Convert a world-space point into an object's local coordinates.
+                auto inverseTransformPoint = [](Point2D p, Point2D pos, float angle) {
+                    Point2D translated = p - pos;
+                    float c = std::cos(angle);
+                    float s = std::sin(angle);
+
+                    return Point2D(
+                        translated.x * c + translated.y * s,
+                       -translated.x * s + translated.y * c
+                    );
+                };
+
+                // Test two directed line segments and return their intersection.
+                auto intersectLines = [&](Line l1, Line l2, Point2D& hit) {
+                    return l1.Crosses(l2, hit);
+                };
+
+                // Test whether a point is inside a polygon.
+                auto pointInPolygon = [](Point2D p,
+                                         const std::vector<Point2D>& polygon) {
+                    bool inside = false;
+
+                    for (size_t i = 0, j = polygon.size() - 1;
+                         i < polygon.size(); j = i++) {
+                        const Point2D& a = polygon[i];
+                        const Point2D& b = polygon[j];
+
+                        bool crosses = ((a.y > p.y) != (b.y > p.y)) &&
+                            (p.x < (b.x - a.x) * (p.y - a.y) /
+                             (b.y - a.y) + a.x);
+
+                        if (crosses)
+                            inside = !inside;
+                    }
+
+                    return inside;
+                };
+
+                // Find the first point where a directed segment enters a circle.
+                auto lineCircleHit = [&](Line line, Circle circle, Point2D& hit) {
+                    Point2D d = line.p2 - line.p1;
+                    Point2D f = line.p1 - circle.center;
+
+                    float a = d.Dot(d);
+                    if (a <= EPSILON)
+                        return false;
+
+                    float b = 2.0f * f.Dot(d);
+                    float c = f.Dot(f) - circle.radius * circle.radius;
+                    float discriminant = b * b - 4.0f * a * c;
+
+                    if (discriminant < 0.0f)
+                        return false;
+
+                    float root = std::sqrt(discriminant);
+                    float t1 = (-b - root) / (2.0f * a);
+                    float t2 = (-b + root) / (2.0f * a);
+
+                    // If the segment starts inside the circle, its first
+                    // contact is its starting point.
+                    if (c <= 0.0f) {
+                        hit = line.p1;
+                        return true;
+                    }
+
+                    if (t1 >= 0.0f && t1 <= 1.0f) {
+                        hit = line.p1 + d * t1;
+                        return true;
+                    }
+
+                    if (t2 >= 0.0f && t2 <= 1.0f) {
+                        hit = line.p1 + d * t2;
+                        return true;
+                    }
+
+                    return false;
+                };
+
+                // Test a segment against a polygon's edges.
+                // The nearest intersection along the segment is returned.
+                auto linePolygonHit = [&](Line line,
+                                          const std::vector<Point2D>& polygon,
+                                          Point2D& hit) {
+                    bool found = false;
+                    float bestDistance = std::numeric_limits<float>::max();
+
+                    if (pointInPolygon(line.p1, polygon)) {
+                        hit = line.p1;
+                        return true;
+                    }
+
+                    for (size_t i = 0; i < polygon.size(); ++i) {
+                        Line edge(polygon[i],
+                                  polygon[(i + 1) % polygon.size()]);
+                        Point2D candidate;
+
+                        if (intersectLines(line, edge, candidate)) {
+                            float distance = (candidate - line.p1).Dot(
+                                candidate - line.p1);
+
+                            if (distance < bestDistance) {
+                                bestDistance = distance;
+                                hit = candidate;
+                                found = true;
+                            }
+                        }
+                    }
+
+                    return found;
+                };
+
+                // Convert each shape into world-space geometry and test it.
+                bool collided = false;
+                bool lineCollision = false;
+                bool lineBelongsToA = false;
+                Point2D worldContact;
+
+                for (const auto& shapeA : shapesA) {
+                    for (const auto& shapeB : shapesB) {
+                        bool pairHit = false;
+                        bool pairHasLine = false;
+                        bool pairLineIsA = false;
+                        Point2D pairContact;
+
+                        // Represent rectangles as four world-space corners.
+                        auto rectCorners = [&](const Rect& r,
+                                               Point2D pos, float angle) {
+                            std::vector<Point2D> corners = {
+                                r.topLeft,
+                                Point2D(r.topLeft.x + r.width, r.topLeft.y),
+                                Point2D(r.topLeft.x + r.width,
+                                        r.topLeft.y + r.height),
+                                Point2D(r.topLeft.x, r.topLeft.y + r.height)
+                            };
+
+                            for (auto& p : corners)
+                                p = transformPoint(p, pos, angle);
+
+                            return corners;
+                        };
+
+                        // Convert a local line to world coordinates.
+                        auto worldLine = [&](const Line& l,
+                                             Point2D pos, float angle) {
+                            return Line(
+                                transformPoint(l.p1, pos, angle),
+                                transformPoint(l.p2, pos, angle)
+                            );
+                        };
+
+                        // Convert a local circle to world coordinates.
+                        auto worldCircle = [&](const Circle& c,
+                                               Point2D pos, float angle) {
+                            return Circle(
+                                transformPoint(c.center, pos, angle),
+                                c.radius
+                            );
+                        };
+
+                        // Convert each shape to its world-space representation.
+                        bool aLine = shapeA.t == ShapeType::kLine;
+                        bool bLine = shapeB.t == ShapeType::kLine;
+                        bool aCircle = shapeA.t == ShapeType::kCircle;
+                        bool bCircle = shapeB.t == ShapeType::kCircle;
+
+                        if (aLine && bLine) {
+                            Line la = worldLine(shapeA.shape.line, posA, angleA);
+                            Line lb = worldLine(shapeB.shape.line, posB, angleB);
+
+                            pairHit = intersectLines(la, lb, pairContact);
+                            pairHasLine = pairHit;
+                            pairLineIsA = true;
+                        }
+                        else if (aLine && bCircle) {
+                            Line la = worldLine(shapeA.shape.line, posA, angleA);
+                            Circle cb = worldCircle(shapeB.shape.circle, posB, angleB);
+
+                            pairHit = lineCircleHit(la, cb, pairContact);
+                            pairHasLine = pairHit;
+                            pairLineIsA = true;
+                        }
+                        else if (aCircle && bLine) {
+                            Circle ca = worldCircle(shapeA.shape.circle, posA, angleA);
+                            Line lb = worldLine(shapeB.shape.line, posB, angleB);
+
+                            pairHit = lineCircleHit(lb, ca, pairContact);
+                            pairHasLine = pairHit;
+                            pairLineIsA = false;
+                        }
+                        else if (aLine && shapeB.t == ShapeType::kRect) {
+                            Line la = worldLine(shapeA.shape.line, posA, angleA);
+                            auto polygon = rectCorners(shapeB.shape.rect, posB, angleB);
+
+                            pairHit = linePolygonHit(la, polygon, pairContact);
+                            pairHasLine = pairHit;
+                            pairLineIsA = true;
+                        }
+                        else if (shapeA.t == ShapeType::kRect && bLine) {
+                            auto polygon = rectCorners(shapeA.shape.rect, posA, angleA);
+                            Line lb = worldLine(shapeB.shape.line, posB, angleB);
+
+                            pairHit = linePolygonHit(lb, polygon, pairContact);
+                            pairHasLine = pairHit;
+                            pairLineIsA = false;
+                        }
+                        else if (aCircle && bCircle) {
+                            Circle ca = worldCircle(shapeA.shape.circle, posA, angleA);
+                            Circle cb = worldCircle(shapeB.shape.circle, posB, angleB);
+
+                            float radiusSum = ca.radius + cb.radius;
+                            Point2D difference = ca.center - cb.center;
+
+                            pairHit = difference.Dot(difference) <=
+                                      radiusSum * radiusSum;
+                        }
+                        else if (aCircle && shapeB.t == ShapeType::kRect) {
+                            Circle ca = worldCircle(shapeA.shape.circle, posA, angleA);
+                            auto polygon = rectCorners(shapeB.shape.rect, posB, angleB);
+
+                            if (pointInPolygon(ca.center, polygon)) {
+                                pairHit = true;
+                            }
+                            else {
+                                for (size_t i = 0; i < polygon.size(); ++i) {
+                                    Line edge(polygon[i],
+                                              polygon[(i + 1) % polygon.size()]);
+                                    Point2D closest = edge.ClosestPoint(ca.center);
+                                    Point2D delta = closest - ca.center;
+
+                                    if (delta.Dot(delta) <= ca.radius * ca.radius) {
+                                        pairHit = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        else if (shapeA.t == ShapeType::kRect && bCircle) {
+                            auto polygon = rectCorners(shapeA.shape.rect, posA, angleA);
+                            Circle cb = worldCircle(shapeB.shape.circle, posB, angleB);
+
+                            if (pointInPolygon(cb.center, polygon)) {
+                                pairHit = true;
+                            }
+                            else {
+                                for (size_t i = 0; i < polygon.size(); ++i) {
+                                    Line edge(polygon[i],
+                                              polygon[(i + 1) % polygon.size()]);
+                                    Point2D closest = edge.ClosestPoint(cb.center);
+                                    Point2D delta = closest - cb.center;
+
+                                    if (delta.Dot(delta) <= cb.radius * cb.radius) {
+                                        pairHit = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        else {
+                            // Rectangle vs rectangle: check every edge pair,
+                            // then check whether one rectangle contains the other.
+                            auto polygonA = rectCorners(shapeA.shape.rect, posA, angleA);
+                            auto polygonB = rectCorners(shapeB.shape.rect, posB, angleB);
+
+                            for (size_t i = 0; i < polygonA.size() && !pairHit; ++i) {
+                                Line edgeA(polygonA[i],
+                                           polygonA[(i + 1) % polygonA.size()]);
+
+                                for (size_t j = 0; j < polygonB.size(); ++j) {
+                                    Line edgeB(polygonB[j],
+                                               polygonB[(j + 1) % polygonB.size()]);
+                                    Point2D ignored;
+
+                                    if (intersectLines(edgeA, edgeB, ignored)) {
+                                        pairHit = true;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            if (!pairHit) {
+                                pairHit = pointInPolygon(polygonA[0], polygonB) ||
+                                          pointInPolygon(polygonB[0], polygonA);
+                            }
+                        }
+
+                        if (pairHit) {
+                            collided = true;
+
+                            if (pairHasLine) {
+                                lineCollision = true;
+                                lineBelongsToA = pairLineIsA;
+                                worldContact = pairContact;
+                            }
+
+                            break;
+                        }
+                    }
+
+                    if (collided)
+                        break;
                 }
+
+                if (collided) {
+                    if (lineCollision) {
+                        // Convert the world-space contact point into the
+                        // local space of the object whose shape was a line.
+                        Point2D localContact = lineBelongsToA
+                            ? inverseTransformPoint(worldContact, posA, angleA)
+                            : inverseTransformPoint(worldContact, posB, angleB);
+
+                        if (lineBelongsToA) {
+                            objA->CollisionEnter(objB, localContact);
+                            objB->CollisionEnter(objA);
+                        }
+                        else {
+                            objB->CollisionEnter(objA, localContact);
+                            objA->CollisionEnter(objB);
+                        }
+                    }
+                    else {
+                        objA->CollisionEnter(objB);
+                        objB->CollisionEnter(objA);
+                    }
+                }
+
+                
             }    
         }
 
@@ -181,8 +534,18 @@ void GameEngine::Run() {
             auto graphics = std::dynamic_pointer_cast<GraphicsObject>(object);
 
             // If it is a graphics object, call its render BACKGROUND logic FIRST
-            if (graphics != nullptr)
-                graphics->RenderBackground(&mGameContext);
+            if (graphics == nullptr)
+                continue;
+
+
+            mDrawContext->SetContextOffset(graphics->GetLocation());
+
+            // GraphicsObject returns radians; DrawContext expects degrees.
+            // std::acos(-1.0f) is how you calculate PI, so we are dividing by PI
+            mDrawContext->SetContextRotation(graphics->GetRotation() * 180.0f / std::acos(-1.0f));
+            graphics->RenderBackground(&mGameContext);
+
+
         }
 
         // 7. Render foreground
@@ -192,11 +555,23 @@ void GameEngine::Run() {
             auto graphics = std::dynamic_pointer_cast<GraphicsObject>(object);
 
             // If it is a graphics object, call its render FOREGROUND logic SECOND
-            if (graphics != nullptr)
-                graphics->RenderForeground(&mGameContext);
-        
+            if (graphics == nullptr)
+                continue;
+
+            mDrawContext->SetContextOffset(graphics->GetLocation());
+            // Again, we are diving by std::acos(-1.0f) which is how you calculate PI
+            mDrawContext->SetContextRotation(graphics->GetRotation() * 180.0f / std::acos(-1.0f));
+            graphics->RenderForeground(&mGameContext);
+
+        }
+
+        // Render UI without any object transformation.
+        mDrawContext->SetContextOffset(Point2D(0.0f, 0.0f));
+        mDrawContext->SetContextRotation(0.0f);
+        for (auto& object : mAliveObjects)
+        {
+            mGameContext.CurrObject = object;
             object->RenderUI(&mGameContext);
-            
         }
 
         // Actually render to window

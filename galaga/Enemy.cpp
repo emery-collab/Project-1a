@@ -12,6 +12,12 @@ Enemy::Enemy(CMPUT350::Point2D loc)
     float top = loc.y - h/2;
     float left = loc.x - w/2;
     mBounds = CMPUT350::Rect(CMPUT350::Point2D(left,top), w, h);
+
+    // new constructor calls partb
+    location = loc;
+    mShapes.clear();
+    mShapes.push_back(CMPUT350::Rect(CMPUT350::Point2D(-15, -15), 30, 30)
+);
 }
 
 void Enemy::Initialize(CMPUT350::GameContext* context)
@@ -78,10 +84,15 @@ const CMPUT350::Rect& Enemy::GetBounds()
 // Stub values for now, so the class still compiles.
 CMPUT350::Point2D Enemy::GetLocation() const
 {
-    return CMPUT350::Point2D(0, 0);
+    return location;
 }
 
 float Enemy::GetRotation() const
 {
     return 0.0f;
+}
+
+const std::vector<CMPUT350::Shape>& Enemy::GetShapes()
+{
+    return mShapes;
 }

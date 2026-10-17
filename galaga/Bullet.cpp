@@ -70,7 +70,11 @@ void Bullet::RenderBackground(CMPUT350::GameContext* context)
 void Bullet::RenderForeground(CMPUT350::GameContext* context)
 {
     //Do we want different colors for enemy and player bullets?
-    context->ScreenContext->DrawLine(mLine.p1, mLine.p2, 4, CMPUT350::Colors::white);
+    //context->ScreenContext->DrawLine(mLine.p1, mLine.p2, 4, CMPUT350::Colors::white);
+
+    // Draw the bullet in local coordinates.
+    // GameEngine applies the bullet's world position.
+    context->ScreenContext->DrawLine(CMPUT350::Point2D(0, 0), headingAmt, 4, isPlayer ? CMPUT350::Colors::white : CMPUT350::Colors::red);
 }
 
 // Player bullets are destroyed when they hit an enemy

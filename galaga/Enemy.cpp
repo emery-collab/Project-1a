@@ -49,7 +49,8 @@ void Enemy::RenderBackground(CMPUT350::GameContext* context)
 // Draws the enemy as a red square
 void Enemy::RenderForeground(CMPUT350::GameContext* context)
 {
-    context->ScreenContext->DrawRect(mBounds, CMPUT350::Colors::red);
+    //context->ScreenContext->DrawRect(mBounds, CMPUT350::Colors::red);
+    context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-15, -15), 30, 30), CMPUT350::Colors::red);
 }
 
 // Dies when hit by a player bullet

@@ -140,6 +140,7 @@ void Player::RenderBackground(CMPUT350::GameContext* context)
 // Draws the ship and its bounding box
 void Player::RenderForeground(CMPUT350::GameContext* context)
 {
+    /*
     context->ScreenContext->FrameRect(mBounds, 3, CMPUT350::Colors::yellow);
     context->ScreenContext->DrawRect(nozzle, CMPUT350::Colors::white);
     context->ScreenContext->DrawRect(nozzle2, CMPUT350::Colors::white);
@@ -147,6 +148,17 @@ void Player::RenderForeground(CMPUT350::GameContext* context)
     context->ScreenContext->DrawRect(cockpit, CMPUT350::Colors::blue);
     context->ScreenContext->DrawRect(thrusterL, CMPUT350::Colors::red);
     context->ScreenContext->DrawRect(thrusterR, CMPUT350::Colors::red);
+    */
+    CMPUT350::Rect localBounds(CMPUT350::Point2D(-width / 2, -height / 2), width, height);
+
+    context->ScreenContext->FrameRect(localBounds, 3, CMPUT350::Colors::yellow);
+
+    context->ScreenContext->DrawRect(mShapes[0].shape.rect, CMPUT350::Colors::white);
+    context->ScreenContext->DrawRect(mShapes[1].shape.rect, CMPUT350::Colors::white);
+    context->ScreenContext->DrawRect(mShapes[2].shape.rect, CMPUT350::Colors::white);
+    context->ScreenContext->DrawRect(mShapes[3].shape.rect, CMPUT350::Colors::blue);
+    context->ScreenContext->DrawRect(mShapes[4].shape.rect, CMPUT350::Colors::red);
+    context->ScreenContext->DrawRect(mShapes[5].shape.rect, CMPUT350::Colors::red);
 }
 
 

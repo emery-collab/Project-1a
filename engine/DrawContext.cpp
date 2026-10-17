@@ -136,13 +136,15 @@ void DrawContext::DrawCircle(Point2D p, float radius, RGBColor c) {
     // Declare circle with radius
     sf::CircleShape circle(radius);
 
+    // Use its center as the origin so it rotates around its center.
+    circle.setOrigin(sf::Vector2f(radius, radius));
+
     // Convert the local center to world coordinates.
     Point2D center = Transform(p);
 
-    // Set pos, need to subtract radius since the SFML default circle implementation refers to its top left, 
-    // whereas our point2d represents center
-    // ie. if center = (400, 300) and radius = (20) we want to draw at (380, 280)
-    circle.setPosition(sf::Vector2f(center.x - radius, center.y - radius));
+    // Set pos
+    circle.setPosition(sf::Vector2f(center.x, center.y));
+    circle.setRotation(sf::degrees(mContextRotation));
 
     // Set color
     circle.setFillColor(sf::Color(c.r, c.g, c.b));

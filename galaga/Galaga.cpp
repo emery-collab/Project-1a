@@ -3,7 +3,7 @@
 #include "GameContext.h"
 #include "Stars.h"
 #include "Player.h"
-
+#include <string> 
 #include "Enemy.h"
 
 namespace CMPUT350 {
@@ -93,6 +93,7 @@ void Galaga::Waves(GameContext* context){
 
 }
 void Galaga::GamePlay(GameContext* context){
+    RenderUI(context);
 
 }
 void Galaga::GameOver(GameContext* context){
@@ -100,8 +101,20 @@ void Galaga::GameOver(GameContext* context){
 }
 
 void Galaga::RenderUI(GameContext *context){
-    auto displayScore = "SCORE " + std::to_string(mScore)
-    context->GUIContext->DrawText(displayScore, size,  Point2D(10, 10), CMPUT350::Colors::white)
+    auto displayScore = "SCORE " + std::to_string(mScore);
+    int scoreSize = 16;
+    context->GUIContext->DrawText(displayScore, scoreSize,  Point2D(10, 10), CMPUT350::Colors::white);
+
+    auto displayLives = "Lives " + std::to_string(mLives);
+    int livesSize = 16;
+    context->GUIContext->DrawText(displayLives, livesSize,  Point2D(mWidth-150, 10), CMPUT350::Colors::white);
+
+    auto displayStage = "STAGE " + std::to_string(mLevel);
+    int levelSize = 24;
+    context->GUIContext->DrawText(displayStage, levelSize,  Point2D(mWidth/2-70, 10), CMPUT350::Colors::white);
+
+
+
 
 }
 }

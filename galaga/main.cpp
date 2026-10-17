@@ -3,6 +3,8 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "Stars.h"
+#include "Galaga.h"
+#include "GraphicsObject.h"
 
 class Ball : public CMPUT350::CollisionObject
 {
@@ -129,18 +131,21 @@ int main()
     else
     {
         CMPUT350::GameEngine engine(768, 1024, "Galaga");
-        auto player = std::make_shared<Player>(CMPUT350::Point2D(768 / 2, 900));
-        engine.AddGameObject(player);
-        engine.AddGameObject(std::make_shared<Stars>(250, CMPUT350::Rect(0, 0, 768, 1024)));
-        float ySpacing = 60;
-        float xSpacing = (768-100)/8;
-        for (int x = 0; x < 8; x++)
-        {
-            for(int y = 0; y < 5; y++){
-                auto enemy = std::make_shared<Enemy>(CMPUT350::Point2D(100 + x * xSpacing, y*ySpacing+100));
-                engine.AddGameObject(enemy);
-            }
-        }
+        std::shared_ptr<CMPUT350::GameObject> game = std::make_shared<CMPUT350::Galaga>(768, 1024);
+        engine.AddGameObject(game);
+        
+        // auto player = std::make_shared<Player>(CMPUT350::Point2D(768 / 2, 900));
+        // engine.AddGameObject(player);
+        // engine.AddGameObject(std::make_shared<Stars>(250, CMPUT350::Rect(0, 0, 768, 1024)));
+        // float ySpacing = 60;
+        // float xSpacing = (768-100)/8;
+        // for (int x = 0; x < 8; x++)
+        // {
+        //     for(int y = 0; y < 5; y++){
+        //         auto enemy = std::make_shared<Enemy>(CMPUT350::Point2D(100 + x * xSpacing, y*ySpacing+100));
+        //         engine.AddGameObject(enemy);
+        //     }
+        // }
         engine.Run();
     }
     return 0;

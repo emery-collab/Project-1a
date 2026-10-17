@@ -84,7 +84,7 @@ void DrawContext::DrawRect(Rect r, RGBColor c) {
 
 }
 
-void DrawContext::FrameRect(Rect r, float width, RGBColor c) {}
+void DrawContext::FrameRect(Rect r, float width, RGBColor c) {
 
 /**
  * @brief Draws a line between two points with a specified width and color.
@@ -98,6 +98,21 @@ void DrawContext::FrameRect(Rect r, float width, RGBColor c) {}
  * and uses a polygone shape to represent the line. The line is drawn
  * relative to the world offset and rendered onto the associated window.
  */
+
+    // Get the four corners of our rectangle to be framed
+    Point2D topLeft = r.topLeft;
+    Point2D topRight(r.topLeft.x + r.width, r.topLeft.y);
+    Point2D bottomLeft(r.topLeft.x, r.topLeft.y + r.height);
+    Point2D bottomRight(r.topLeft.x + r.width, r.topLeft.y + r.height);
+
+    // Draw the four edges using the four corners
+    DrawLine(topLeft, topRight, width, c);
+    DrawLine(topRight, bottomRight, width, c);
+    DrawLine(bottomRight, bottomLeft, width, c);
+    DrawLine(bottomLeft, topLeft, width, c);
+
+}
+
 void DrawContext::DrawLine(Point2D from, Point2D to, float width, RGBColor c) {
     // Draw line logic: direction vector(start->end) -> normalize -> perpendicular for width -> half thickness -> calculate points -> set/color/draw
 

@@ -31,6 +31,7 @@ public:
     // new virtual functions for partb inherited from collisionobject.h
     CMPUT350::Point2D GetLocation() const override;
     float GetRotation() const override;
+    EnemyStates GetState() const;
     const std::vector<CMPUT350::Shape>& GetShapes() override;
 
 

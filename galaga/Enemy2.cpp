@@ -7,7 +7,7 @@
 
 void Enemy2::Initialize(CMPUT350::GameContext* context)
 {
-
+    mRotation = 
 }
 bool Enemy2::Attack(CMPUT350::GameContext *context, const CMPUT350::Point2D &target)
 {
@@ -57,4 +57,5 @@ void Enemy2::RenderForeground(CMPUT350::GameContext* context)
         context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-5, -10), 10, 20), CMPUT350::Colors::red);
     }
 }
+
 

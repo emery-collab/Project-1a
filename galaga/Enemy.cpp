@@ -32,6 +32,9 @@ Enemy::Enemy(CMPUT350::Point2D loc,const std::vector<CMPUT350::Point2D> &path )
 void Enemy::Initialize(CMPUT350::GameContext* context)
 {
 }
+EnemyStates Enemy::GetState() const{
+    return mStates;
+}
 
 void Enemy::Update(CMPUT350::GameContext* context)
 {

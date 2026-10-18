@@ -23,6 +23,7 @@ Galaga::Galaga(float width, float height)
     mCredits = 0;
     mGameStart = false;
     offset = 0;
+    waveNumber =1;
 }
 
 void Galaga::Initialize(CMPUT350::GameContext* context){
@@ -104,6 +105,7 @@ void Galaga::WaitingForGameToBegin(GameContext* context){
 void Galaga::StartUp(GameContext* context){
     //reset the game start boolean to false
     mGameStart = false;
+    waveNumber =1;
     int elapsed = context->currentFrame - mStateStartFrame;
     //possibly add gui text for a countdown? 
     if (elapsed < 60) return;   
@@ -121,55 +123,63 @@ void Galaga::Waves(GameContext* context){
             
     float ySpacing = 60;
     float xSpacing = (768-100)/8;
-    
-    
-    for (int x = 0; x < 8; x++)
-    {
-        for(int y = 0; y < 5; y++){
-            if(y >=0 && y < 2){
-                CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
-                std::vector<CMPUT350::Point2D> path = {
-                CMPUT350::Point2D(300, -40+ y * xSpacing),
-                CMPUT350::Point2D(700 , 500+ y * xSpacing),
-                CMPUT350::Point2D(100, 400+ y * xSpacing),
-                formationSpot
-                };
-                auto enemy3 = std::make_shared<Enemy3>(formationSpot,path);
-                context->mEngineView->AddGameObject(enemy3);
-                mEnemiesAlive++;
+    int elapsed = context->currentFrame - mStateStartFrame;
+    if (elapsed >= 60){
+        for (int x = 0; x < 8; x++)
+        {
+            for(int y = waveNumber-1; y < waveNumber; y++){
+                if(x >=0 && x < 2){
+                    CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
+                    std::vector<CMPUT350::Point2D> path = {
+                    CMPUT350::Point2D(300+ 30*x, -40 +  xSpacing),
+                    CMPUT350::Point2D(700 + 30*x, 500 +  xSpacing),
+                    CMPUT350::Point2D(100+ 30*x, 400 + xSpacing),
+                    formationSpot
+                    };
+                    auto enemy3 = std::make_shared<Enemy3>(formationSpot,path);
+                    context->mEngineView->AddGameObject(enemy3);
+                    mEnemiesAlive++;
 
-            }
-            else if(y >=2 && y < 4){
-                CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
-                std::vector<CMPUT350::Point2D> path = {
-                CMPUT350::Point2D(300+ y * xSpacing, -40+ y * xSpacing),
-                CMPUT350::Point2D(700+ y * xSpacing, 500+ y * xSpacing),
-                CMPUT350::Point2D(100+ y * xSpacing, 400+ y * xSpacing),
-                formationSpot
-                };
-                auto enemy2 = std::make_shared<Enemy2>(formationSpot,path);
-                context->mEngineView->AddGameObject(enemy2);
-                mEnemiesAlive++;
+                }
+                else if(x >=2 && x < 6){
+                    CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
+                    std::vector<CMPUT350::Point2D> path = {
+                    CMPUT350::Point2D(300+  xSpacing+ 30*x, -40+  xSpacing),
+                    CMPUT350::Point2D(700+ xSpacing+ 30*x, 500+  xSpacing),
+                    CMPUT350::Point2D(100+ xSpacing+ 30*x, 400+ xSpacing),
+                    formationSpot
+                    };
+                    auto enemy2 = std::make_shared<Enemy2>(formationSpot,path);
+                    context->mEngineView->AddGameObject(enemy2);
+                    mEnemiesAlive++;
 
-            }
-            else if(y >=4){
-                CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
-                std::vector<CMPUT350::Point2D> path = {
-                CMPUT350::Point2D(300+ -y/2 * xSpacing, -40+ y/2 * xSpacing),
-                CMPUT350::Point2D(700+ -y/2 * xSpacing, 500+ y/2 * xSpacing),
-                CMPUT350::Point2D(100+ -y/2 * xSpacing, 400+ y/2 * xSpacing),
-                formationSpot
-                };
-                auto enemy1 = std::make_shared<Enemy1>(formationSpot,path);
-                context->mEngineView->AddGameObject(enemy1);
-                mEnemiesAlive++;
+                }
+                else if(x >=6){
+                    CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
+                    std::vector<CMPUT350::Point2D> path = {
+                    CMPUT350::Point2D(300+ xSpacing- 30*x, -40+  xSpacing),
+                    CMPUT350::Point2D(700+ xSpacing- 30*x, 500+  xSpacing),
+                    CMPUT350::Point2D(100+ xSpacing- 30*x, 400+  xSpacing),
+                    formationSpot
+                    };
+                    auto enemy1 = std::make_shared<Enemy1>(formationSpot,path);
+                    context->mEngineView->AddGameObject(enemy1);
+                    mEnemiesAlive++;
+
+                }
+
+
+            
 
             }
 
         }
+        mStateStartFrame = context->currentFrame;
+        waveNumber++;
+        if(waveNumber > 5) ChangeState(States::kGamePlay,context);
 
-    }
-    ChangeState(States::kGamePlay,context);
+        }
+
    
     
 
@@ -266,9 +276,17 @@ void Galaga::GameOver(GameContext* context){
 
 }
 void Galaga::Respawn(GameContext* context){
+
     int elapsed = context->currentFrame - mStateStartFrame;
     if (elapsed < 60) return;
-
+    for (const auto &obj : *(context->mEngineView)){
+        auto enemyMoving = std::dynamic_pointer_cast<Enemy>(obj);
+        if(enemyMoving!=nullptr){
+            if(enemyMoving->GetState() == EnemyStates::kAttacking){
+                return;
+            }
+        }
+    }
     auto player = std::make_shared<Player>(CMPUT350::Point2D(768 / 2, 900));
     context->mEngineView->AddGameObject(player);
     mPlayer = player;

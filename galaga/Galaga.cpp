@@ -5,6 +5,9 @@
 #include "Player.h"
 #include <string> 
 #include "Enemy.h"
+#include "Enemy1.h"
+#include "Enemy2.h"
+#include "Enemy3.h"
 
 namespace CMPUT350 {
 Galaga::Galaga(float width, float height)
@@ -111,11 +114,20 @@ void Galaga::Waves(GameContext* context){
             
     float ySpacing = 60;
     float xSpacing = (768-100)/8;
-    for (int x = 0; x < 8; x++)
+    
+    
+    for (int x = 0; x < 1; x++)
     {
-        for(int y = 0; y < 5; y++){
-            auto enemy = std::make_shared<Enemy>(CMPUT350::Point2D(100 + x * xSpacing, y*ySpacing+100));
-            context->mEngineView->AddGameObject(enemy);
+        for(int y = 0; y < 1; y++){
+            CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
+            std::vector<CMPUT350::Point2D> path = {
+                CMPUT350::Point2D(384, -40),
+                CMPUT350::Point2D(700, 500),
+                CMPUT350::Point2D(100, 400),
+                formationSpot
+            };
+            auto enemy1 = std::make_shared<Enemy1>(formationSpot,path);
+            context->mEngineView->AddGameObject(enemy1);
             mEnemiesAlive++;
         }
 

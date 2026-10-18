@@ -37,6 +37,15 @@ void Bullet::Initialize(CMPUT350::GameContext* context)
 // Moves the bullet one step along its heading and kills it once it leaves the screen
 void Bullet::Update(CMPUT350::GameContext* context)
 {
+    // new check to ensure explosion sticks around for atleast 6 frames before unaliving the object
+    if (mExploded) {
+        mExplosionFrames++;
+        if (mExplosionFrames >= 6) 
+            Kill();
+        return;
+    }
+
+    // normal update logic if not exploded
     starting = ending;
     ending = ending + headingAmt;
 
@@ -49,6 +58,8 @@ void Bullet::Update(CMPUT350::GameContext* context)
     if(starting.x < 0 || starting.y < 0 || starting.y > windowHeight || starting.x > windowwidth){
         Kill();
     }
+
+
 }
 
 void Bullet::LateUpdate(CMPUT350::GameContext* context)
@@ -74,17 +85,50 @@ void Bullet::RenderForeground(CMPUT350::GameContext* context)
 
     // Draw the bullet in local coordinates.
     // GameEngine applies the bullet's world position.
-    context->ScreenContext->DrawLine(CMPUT350::Point2D(0, 0), headingAmt, 4, isPlayer ? CMPUT350::Colors::white : CMPUT350::Colors::red);
+
+    if (mExploded) {
+        context->ScreenContext->DrawCircle(mExplosionPoint, 7, CMPUT350::Colors::yellow);
+    } else {
+        context->ScreenContext->DrawLine(CMPUT350::Point2D(0, 0), headingAmt, 4, isPlayer ? CMPUT350::Colors::white : CMPUT350::Colors::red);
+    }
+
+    
 }
 
 // Player bullets are destroyed when they hit an enemy
 void Bullet::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj)
 {
+    // added check for explosion
+    if (mExploded)
+        return;
+
     std::shared_ptr<Enemy> enemy = std::dynamic_pointer_cast<Enemy>(obj);
 
     if(enemy != nullptr && isPlayer){
         Kill();
     }
+}
+
+void Bullet::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj, const CMPUT350::Point2D& collisionPoint) 
+{
+    // Function for obj and collision point
+
+    // check if exploded return largest Y
+    if (mExploded) {
+        if (collisionPoint.y > mExplosionPoint.y)
+            mExplosionPoint = collisionPoint;
+        return;
+    }
+
+    std::shared_ptr<Enemy> enemy = std::dynamic_pointer_cast<Enemy>(obj);
+
+    if(enemy != nullptr && isPlayer){
+        mExploded = true;
+        mExplosionPoint = collisionPoint;
+        mLine = CMPUT350::Line(collisionPoint, collisionPoint);
+        mBounds = CMPUT350::Rect(collisionPoint, 0, 0);
+    }
+
 }
 
 // Marks the bullet dead so the engine removes it next frame
@@ -121,17 +165,12 @@ const std::vector<CMPUT350::Shape>& Bullet::GetShapes()
     mShapes.clear();
     // The bullet's location is starting.
     // Represent the swept line relative to that location.
-    mShapes.push_back(CMPUT350::Line(CMPUT350::Point2D(0, 0), headingAmt));
+
+    // also, now we have to check if the bullet is exploded so that it doesnt instakill everything it lingers on while its an explosion for 6 or so frames
+    if (!mExploded)
+        mShapes.push_back(CMPUT350::Line(CMPUT350::Point2D(0, 0), headingAmt));
 
     return mShapes;
 }
 
-void Bullet::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj, const CMPUT350::Point2D& collisionPoint)
-{
-    // The engine supplies this point in local coordinates
-    // for the object whose line caused the collision.
-    // void the collisionpoint for now to avoid warnings/errors until fully implemented later. forward the call to collisionenter(obj)
-    (void)collisionPoint;
-    CollisionEnter(obj);
-}
 

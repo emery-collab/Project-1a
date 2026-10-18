@@ -1,5 +1,5 @@
 CMPUT 350 - Project 1b: Galaga
-Team: Sean Piatt, [FILL IN: partner name]
+Team: Sean Piatt, Emery Theroux
 
 ============================================================
 1. OVERVIEW
@@ -117,18 +117,101 @@ Sean Piatt:
     firing, health colors (galaga/Enemy*.h/.cpp)
   - Enemy/player bullet collisions
 
-[FILL IN: partner name]:
-  - MathUtil: Line, Circle, ClosestPoint, Crosses
-  - CollisionObject shapes and collision detection in GameEngine
-  - DrawContext offsets/rotation transformations
-  - GameEngine Part B updates
-  - Bullet explosion / rendering updates
-  - [FILL IN]
+[Emery Theroux]:
+  - MathUtils: line-line Crosses(), ClosestPoint(), and other outstanding
+    utilities, including ostream operators.
+  - CollisionObject shape interface and shape-specific collision detection
+    in GameEngine.
+  - DrawContext transformations, including offsets, rotations, rectangle
+    framing, and transformed drawing functions.
+  - GameEngine Part B updates and collision-handling refactor.
+  - Bullet explosion behaviour, collision-point selection, explosion rendering,
+    and disabling collision shapes during the explosion.
+  - Refactoring and cleanup across several Galaga rendering functions.
 
 ============================================================
-6. EXTRA CREDIT
+IMPLEMENTATION NOTES
 ============================================================
-  [FILL IN: none, or describe what was done]
+
+MathUtils
+---------
+  - Implemented a line-line Crosses() function that calculates the variables
+    needed for the intersection equations derived in class, checks for parallel
+    lines, and then uses u and t to determine whether the lines intersect. If
+    they do, it returns true and sets the crossing point.
+  - AI review suggested checking whether the denominator is within epsilon of
+    zero rather than checking whether it equals zero exactly, since floating-
+    point arithmetic can produce values extremely close to zero.
+  - Implemented ClosestPoint() and other outstanding tasks, including ostream
+    operators. ClosestPoint() finds the actual closest point on a line rather
+    than checking only its endpoints.
+
+CollisionObject.h
+-----------------
+  - Added the code described in the assignment and updated Player, Enemy, and
+    Bullet to implement GetShapes(), GetRotation(), and GetLocation() from the
+    new virtual functions in CollisionObject.h.
+  - In Player.cpp, converted a world-coordinate rectangle to local coordinates.
+    AI was used to help identify and correct the coordinate-space issue.
+
+DrawContext.cpp
+---------------
+  - Implemented FrameRect() by finding the four corners of a rectangle and
+    drawing lines between them.
+  - Added Transform(Point2D), Transform(Rect), and ReverseTransform() to handle
+    rotations, then updated the drawing functions to respect the current
+    transformations.
+  - Added SetContextOffset() and SetContextRotation() so GameEngine can access
+    the private transformation state through setter functions.
+  - Used AI assistance to refactor DrawRect() rotation handling. Transforming
+    only the object's local position or center was insufficient, so all four
+    corners are transformed before drawing the resulting polygon.
+  - Each drawing function applies its transformations before drawing, except
+    FrameRect(), which uses DrawLine()'s transformation logic.
+
+GameEngine.cpp/h
+----------------
+  - Updated the engine to support new events.
+  - Refactored collision detection to skip object pairs whose bounding boxes do
+    not overlap before checking their locations, rotations, and shapes.
+  - Used AI assistance to develop and review the collision-detection code, then
+    refactored it into lambda functions to reduce duplicated calculations and
+    avoid checking equivalent pairs such as line-circle and circle-line.
+  - The collision-detection flow in GameEngine::Run() is:
+      1. Declare helper lambdas.
+      2. Perform reusable calculations, such as transforming points and testing
+         intersections.
+      3. Compare shapes to determine whether they overlap.
+      4. Notify the objects of collisions and provide a contact point for line
+         collisions when available.
+
+Bullet.h/cpp
+------------
+  - Added member variables to track whether a bullet has exploded, the explosion
+    location, and how many frames the explosion has remained visible.
+  - Updated the collision callbacks to record the collision point and retain
+    the point with the largest Y coordinate when multiple points are reported.
+  - Updated RenderForeground() to draw a small circle instead of the moving
+    line during the explosion.
+  - Updated Update() to remove the bullet after the explosion has been visible
+    for a few frames.
+  - Updated GetShapes() to return no collision shapes after the bullet explodes,
+    preventing the lingering explosion from repeatedly damaging an enemy.
+
+Extras
+------
+  - Refactored several functions, including RenderForeground(), across the
+    Galaga files.
+
+Enemy1/2/3.cpp
+--------------
+  - Added custom Bezier paths for the three enemy types, using vectors of
+    Point2D values. The paths begin and end at the enemies' formation spots
+    and use the player's coordinates to varying degrees in their calculations.
+
+Extra Credit
+------------
+  - None
 
 ============================================================
 7. AI USAGE
@@ -142,9 +225,6 @@ Tool: Claude (Claude Code).
     reviewed and completed by us.
   - Help while coding: we used Claude to explain C++ concepts and compiler
     errors and helped break the specifications into steps.
-  - [FILL IN: any code that came from AI, the prompt used, and where it is
-    in the code]
 
-Reflection:
-  [FILL IN: your own reflection on the quality and usefulness of the AI
-  help and any AI code]
+
+

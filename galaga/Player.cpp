@@ -4,6 +4,7 @@
 #include "Bullet.h"
 #include "NotificationManager.h"
 #include "Keyboard.h"
+#include "Enemy.h"
 // Creates the ship centered at loc
 Player::Player(CMPUT350::Point2D loc)
 {
@@ -165,6 +166,16 @@ void Player::RenderForeground(CMPUT350::GameContext* context)
 // Player ignores collisions
 void Player::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj)
 {
+    std::shared_ptr<Bullet> bullet = std::dynamic_pointer_cast<Bullet>(obj);
+    std::shared_ptr<Enemy> enemy = std::dynamic_pointer_cast<Enemy>(obj);
+
+    if(bullet != nullptr && !(bullet->IsPlayerBullet())){
+        Kill();
+        
+    }
+    if(enemy != nullptr){
+        Kill();
+    }
 }
 
 // Marks the player dead so the engine removes it next frame

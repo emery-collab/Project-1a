@@ -4,6 +4,7 @@
 
 #include "CollisionObject.h"
 #include "GameContext.h"
+#include "Bullet.h"
 
 
 enum class EnemyStates{
@@ -54,6 +55,7 @@ protected:
     float mRotation;
     int mHealth;
     EnemyStates mStates;
+    std::weak_ptr<Bullet> mShot1;
 };
 
 

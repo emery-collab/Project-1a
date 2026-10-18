@@ -5,12 +5,16 @@
 #include "CollisionObject.h"
 #include "GameContext.h"
 
+
+enum class EnemyStates{
+    kEntering, kWaiting,kAttacking
+};
 // A stationary enemy drawn as a square; dies when hit by a player bullet
 class Enemy : public CMPUT350::CollisionObject
 {
 public:
     // loc: center of the enemy
-    Enemy(CMPUT350::Point2D loc);
+    Enemy(CMPUT350::Point2D loc,const std::vector<CMPUT350::Point2D> &path);
 
     // GameObject Functions
     void Initialize(CMPUT350::GameContext* context) override;
@@ -33,7 +37,9 @@ public:
     void CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj) override;
     const CMPUT350::Rect& GetBounds() override;
 
-private:
+    //Attack
+    virtual bool Attack(CMPUT350::GameContext *context, const CMPUT350::Point2D &target) = 0;
+protected:
     bool mAlive;
     CMPUT350::Rect mBounds;
     float length;
@@ -41,6 +47,13 @@ private:
     // new member variables
     std::vector<CMPUT350::Shape> mShapes;
     CMPUT350::Point2D location;
+    CMPUT350::Point2D formationSpot;
+    std::vector<CMPUT350::Point2D> mPath;
+    float t;
+    float mSpeed;
+    float mRotation;
+    int mHealth;
+    EnemyStates mStates;
 };
 
 

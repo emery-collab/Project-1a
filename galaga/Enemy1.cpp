@@ -40,7 +40,8 @@ bool Enemy1::Attack(CMPUT350::GameContext *context, const CMPUT350::Point2D &tar
 void Enemy1::LateUpdate(CMPUT350::GameContext* context)
 {
     if(!mAlive){
-        context->mNotificationManager->Notify("EnemyDestroyed");
+        if(!(mStates == EnemyStates::kWaiting)) context->mNotificationManager->Notify("Enemy1DestroyedInFormation");
+        else context->mNotificationManager->Notify("Enemy1DestroyedOutFormation");
     }
 }
 

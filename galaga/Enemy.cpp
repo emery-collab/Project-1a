@@ -37,12 +37,13 @@ void Enemy::Update(CMPUT350::GameContext* context)
 {
    switch (mStates)
     {
+
         case(EnemyStates::kEntering):{
 
             auto slope = CMPUT350::Bezier::GetSlope(mPath,t);
-            auto distance = slope.Distance(CMPUT350::Point2D(0,0));
+            auto derivative = slope.Distance(CMPUT350::Point2D(0,0));
             mRotation = std::atan2(slope.y, slope.x); 
-            if((mPath.size() - 1) / 3 > t+mSpeed) t+=mSpeed;
+            if((mPath.size() - 1) / 3 > t+(10/derivative)) t+=(10/derivative);
             else t = (mPath.size() - 1) / 3;
             //std::cerr << "t = " << t << "\n";
             location = CMPUT350::Bezier::GetPoint(mPath, t);
@@ -61,9 +62,9 @@ void Enemy::Update(CMPUT350::GameContext* context)
         }
         case(EnemyStates::kAttacking):
             auto slope = CMPUT350::Bezier::GetSlope(mPath,t);
-            auto distance = slope.Distance(CMPUT350::Point2D(0,0));
+            auto derivative = slope.Distance(CMPUT350::Point2D(0,0));
             mRotation = std::atan2(slope.y, slope.x); 
-            if((mPath.size() - 1) / 3 > t+mSpeed) t+=mSpeed;
+            if((mPath.size() - 1) / 3 > t+(10/derivative))  t+=(10/derivative);
             else t = (mPath.size() - 1) / 3;
             //std::cerr << "t = " << t << "\n";
             location = CMPUT350::Bezier::GetPoint(mPath, t);
@@ -71,7 +72,7 @@ void Enemy::Update(CMPUT350::GameContext* context)
                 mStates = EnemyStates::kWaiting;
                 mRotation = 0,0;
             }
-            if(context->currentFrame % N == 0){
+            if(context->currentFrame % 60 == 0){
                 if(mShot1.expired()){
                 std::shared_ptr<Bullet> bullet1 = std::make_shared<Bullet>(location,CMPUT350::Point2D(0,10), false);
                 mShot1 = bullet1;

@@ -49,10 +49,17 @@ void Galaga::Initialize(CMPUT350::GameContext* context){
     context->mEngineView->InstallKeyUpNotification(86, "StopMoveRight");
 
     context->mEngineView->InstallKeyUpNotification(10, "KillPlayerDebug");
-    context->mNotificationManager->Register(context->CurrObject, "EnemyDestroyed");
+    //context->mNotificationManager->Register(context->CurrObject, "EnemyDestroyed");
     context->mNotificationManager->Register(context->CurrObject, "KillPlayerDebug");
     context->mNotificationManager->Register(context->CurrObject, "InsertedCredits");
     context->mNotificationManager->Register(context->CurrObject, "StartGame");
+    context->mNotificationManager->Register(context->CurrObject, "Enemy1DestroyedInFormation");
+    context->mNotificationManager->Register(context->CurrObject, "Enemy1DestroyedOutFormation");
+    context->mNotificationManager->Register(context->CurrObject, "Enemy2DestroyedInFormation");
+    context->mNotificationManager->Register(context->CurrObject, "Enemy2DestroyedOutFormation");
+    context->mNotificationManager->Register(context->CurrObject, "Enemy3DestroyedInFormation");
+    context->mNotificationManager->Register(context->CurrObject, "Enemy3DestroyedOutFormation");
+
    
 }
 void Galaga::Update(CMPUT350::GameContext* context){
@@ -116,15 +123,15 @@ void Galaga::Waves(GameContext* context){
     float xSpacing = (768-100)/8;
     
     
-    for (int x = 0; x < 1; x++)
+    for (int x = 0; x < 8; x++)
     {
         for(int y = 0; y < 5; y++){
             if(y >=0 && y < 2){
                 CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
                 std::vector<CMPUT350::Point2D> path = {
-                CMPUT350::Point2D(300, -40),
-                CMPUT350::Point2D(700, 500),
-                CMPUT350::Point2D(100, 400),
+                CMPUT350::Point2D(300, -40+ y * xSpacing),
+                CMPUT350::Point2D(700 , 500+ y * xSpacing),
+                CMPUT350::Point2D(100, 400+ y * xSpacing),
                 formationSpot
                 };
                 auto enemy3 = std::make_shared<Enemy3>(formationSpot,path);
@@ -135,9 +142,9 @@ void Galaga::Waves(GameContext* context){
             else if(y >=2 && y < 4){
                 CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
                 std::vector<CMPUT350::Point2D> path = {
-                CMPUT350::Point2D(300, -40),
-                CMPUT350::Point2D(700, 500),
-                CMPUT350::Point2D(100, 400),
+                CMPUT350::Point2D(300+ y * xSpacing, -40+ y * xSpacing),
+                CMPUT350::Point2D(700+ y * xSpacing, 500+ y * xSpacing),
+                CMPUT350::Point2D(100+ y * xSpacing, 400+ y * xSpacing),
                 formationSpot
                 };
                 auto enemy2 = std::make_shared<Enemy2>(formationSpot,path);
@@ -148,9 +155,9 @@ void Galaga::Waves(GameContext* context){
             else if(y >=4){
                 CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
                 std::vector<CMPUT350::Point2D> path = {
-                CMPUT350::Point2D(300, -40),
-                CMPUT350::Point2D(700, 500),
-                CMPUT350::Point2D(100, 400),
+                CMPUT350::Point2D(300+ -y/2 * xSpacing, -40+ y/2 * xSpacing),
+                CMPUT350::Point2D(700+ -y/2 * xSpacing, 500+ y/2 * xSpacing),
+                CMPUT350::Point2D(100+ -y/2 * xSpacing, 400+ y/2 * xSpacing),
                 formationSpot
                 };
                 auto enemy1 = std::make_shared<Enemy1>(formationSpot,path);
@@ -205,7 +212,7 @@ void Galaga::GamePlay(GameContext* context){
             auto enemyCast2 = std::dynamic_pointer_cast<Enemy2>(obj);
             auto enemyCast3 = std::dynamic_pointer_cast<Enemy3>(obj);
             if(enemyCast1 != nullptr){
-                if(counter1 >= offset){
+                if(counter1 >= offset && !sent1){
                     enemyCast1->Attack(context,target);
                     sent1 = true;
                 }
@@ -215,7 +222,7 @@ void Galaga::GamePlay(GameContext* context){
                 
             }
             if(enemyCast2 != nullptr){
-                if(counter2 >= offset){
+                if(counter2 >= offset&& !sent2){
                     enemyCast2->Attack(context,target);
                     sent2 = true;
                 }
@@ -225,7 +232,7 @@ void Galaga::GamePlay(GameContext* context){
 
             }
             if(enemyCast3 != nullptr){
-                if(counter3 >= offset){
+                if(counter3 >= offset&& !sent3){
                     enemyCast3->Attack(context,target);
                     sent3 = true;
                 }
@@ -239,6 +246,8 @@ void Galaga::GamePlay(GameContext* context){
         if(!sent1 && !sent2&& !sent3){
             offset = 0;
         }
+        sent1 = false;
+
 
 
     } 
@@ -311,8 +320,28 @@ void Galaga::ChangeState(States next, GameContext *context){
 
 }
 void Galaga::ReceiveNotification(const std::string& key){
-    if ((key == "EnemyDestroyed") && (mStates ==States::kGamePlay || mStates == States::kRespawn) ){
+    if ((key == "Enemy1DestroyedOutFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn) ){
+        mScore+=200;
+        mEnemiesAlive= mEnemiesAlive - 1;
+    }
+    if ((key == "Enemy1DestroyedInFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn) ){
         mScore+=100;
+        mEnemiesAlive= mEnemiesAlive - 1;
+    }
+    if ((key == "Enemy2DestroyedOutFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn) ){
+        mScore+=400;
+        mEnemiesAlive= mEnemiesAlive - 1;
+    }
+    if ((key == "Enemy2DestroyedInFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn) ){
+        mScore+=200;
+        mEnemiesAlive= mEnemiesAlive - 1;
+    }
+    if ((key == "Enemy3DestroyedOutFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn) ){
+        mScore+=600;
+        mEnemiesAlive= mEnemiesAlive - 1;
+    }
+    if ((key == "Enemy3DestroyedInFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn) ){
+        mScore+=300;
         mEnemiesAlive= mEnemiesAlive - 1;
     }
     if((key == "KillPlayerDebug")){
@@ -326,6 +355,5 @@ void Galaga::ReceiveNotification(const std::string& key){
     if((key == "StartGame") && mCredits >= 5){
         mGameStart = true;
     }
-
 }
 }

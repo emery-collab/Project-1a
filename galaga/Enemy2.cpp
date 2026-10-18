@@ -11,14 +11,35 @@ void Enemy2::Initialize(CMPUT350::GameContext* context)
 }
 bool Enemy2::Attack(CMPUT350::GameContext *context, const CMPUT350::Point2D &target)
 {
-    std::cerr << "Enemy2 attacked\n";
-    return true;
+    if(mStates == EnemyStates::kWaiting){
+        t = 0;
+        //formationSpot = location;
+        std::vector<CMPUT350::Point2D> path = {
+            formationSpot,
+            CMPUT350::Point2D(250, -20),
+            CMPUT350::Point2D(600, target.y + 50),
+            CMPUT350::Point2D(750, 200),
+            CMPUT350::Point2D(350, 550),
+            CMPUT350::Point2D(target.x + 200, target.y - 200),
+            formationSpot
+        };
+        mPath = path;
+        mStates = EnemyStates::kAttacking;
+        return true;
+    }
+    if(mStates == EnemyStates::kAttacking){
+        return false;
+
+
+    }
+    return false;
 }
 
 void Enemy2::LateUpdate(CMPUT350::GameContext* context)
 {
     if(!mAlive){
-        context->mNotificationManager->Notify("EnemyDestroyed");
+        if(!(mStates == EnemyStates::kWaiting)) context->mNotificationManager->Notify("Enemy2DestroyedInFormation");
+        else context->mNotificationManager->Notify("Enemy2DestroyedInFormation");
     }
 }
 

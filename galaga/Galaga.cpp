@@ -22,7 +22,7 @@ Galaga::Galaga(float width, float height)
     mEnemiesAlive = 0;
     mCredits = 0;
     mGameStart = false;
-
+    offset = 0;
 }
 
 void Galaga::Initialize(CMPUT350::GameContext* context){
@@ -192,20 +192,56 @@ void Galaga::GamePlay(GameContext* context){
     if(auto p = mPlayer.lock()){
         target =  p->GetLocation();
     }
-    if (elapsed < 210){
-        if(auto p = mPlayer.lock()){
-           CMPUT350::Point2D target =  p->GetLocation();
-        }
-        for (const auto &obj : *(context->mEngineView)){
-            auto enemyCast = std::dynamic_pointer_cast<Enemy>(obj);
-            if(enemyCast != nullptr){
-                enemyCast->Attack(context,target);
-            }
-        }
-    }
-
-
     
+    if (elapsed > 120){
+        int counter1 = 0;
+        int counter2 = 0;
+        int counter3 = 0;
+        bool sent1 = false;
+        bool sent2 = false;
+        bool sent3 = false;
+        for (const auto &obj : *(context->mEngineView)){
+            auto enemyCast1 = std::dynamic_pointer_cast<Enemy1>(obj);
+            auto enemyCast2 = std::dynamic_pointer_cast<Enemy2>(obj);
+            auto enemyCast3 = std::dynamic_pointer_cast<Enemy3>(obj);
+            if(enemyCast1 != nullptr){
+                if(counter1 >= offset){
+                    enemyCast1->Attack(context,target);
+                    sent1 = true;
+                }
+                else{
+                    counter1++;
+                }
+                
+            }
+            if(enemyCast2 != nullptr){
+                if(counter2 >= offset){
+                    enemyCast2->Attack(context,target);
+                    sent2 = true;
+                }
+                else{
+                    counter2++;
+                }
+
+            }
+            if(enemyCast3 != nullptr){
+                if(counter3 >= offset){
+                    enemyCast3->Attack(context,target);
+                    sent3 = true;
+                }
+                else{
+                    counter3++;
+                }
+            }
+            if(sent1 && sent2&& sent3)break;
+        }
+        mStateStartFrame = context->currentFrame;
+        if(!sent1 && !sent2&& !sent3){
+            offset = 0;
+        }
+
+
+    } 
 
 }
 void Galaga::GameOver(GameContext* context){

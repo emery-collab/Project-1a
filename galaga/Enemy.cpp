@@ -4,6 +4,8 @@
 #include <iostream>
 #include "NotificationManager.h"
 #include "Bezier.h"
+#include "Player.h"
+
 // Creates a 30x30 enemy centered at loc
 
 Enemy::Enemy(CMPUT350::Point2D loc,const std::vector<CMPUT350::Point2D> &path )
@@ -17,6 +19,7 @@ Enemy::Enemy(CMPUT350::Point2D loc,const std::vector<CMPUT350::Point2D> &path )
 
     // new constructor calls partb
     location = loc;
+    formationSpot = loc;
     mShapes.clear();
     mShapes.push_back(CMPUT350::Rect(CMPUT350::Point2D(-15, -15), 30, 30));
     mPath = path;
@@ -24,6 +27,7 @@ Enemy::Enemy(CMPUT350::Point2D loc,const std::vector<CMPUT350::Point2D> &path )
     mSpeed = 0.01;
     mRotation = (0,0);
     mStates = EnemyStates::kEntering;
+
 };
 void Enemy::Initialize(CMPUT350::GameContext* context)
 {
@@ -39,27 +43,45 @@ void Enemy::Update(CMPUT350::GameContext* context)
             auto distance = slope.Distance(CMPUT350::Point2D(0,0));
             mRotation = std::atan2(slope.y, slope.x); 
             if((mPath.size() - 1) / 3 > t+mSpeed) t+=mSpeed;
-            else t = 1;
+            else t = (mPath.size() - 1) / 3;
             //std::cerr << "t = " << t << "\n";
             location = CMPUT350::Bezier::GetPoint(mPath, t);
-            if(t ==1){
+            if(t ==(mPath.size() - 1) / 3 ){
                 mStates = EnemyStates::kWaiting;
             } 
             break;
         }
-        case(EnemyStates::kWaiting):
+        case(EnemyStates::kWaiting):{
+            //location = formationSpot;
+            float speed = 0.1;
+            auto distance = 20;
+
+            location.x = formationSpot.x + std::sin(context->currentFrame * speed) * distance;
             break;
+        }
         case(EnemyStates::kAttacking):
             auto slope = CMPUT350::Bezier::GetSlope(mPath,t);
             auto distance = slope.Distance(CMPUT350::Point2D(0,0));
             mRotation = std::atan2(slope.y, slope.x); 
             if((mPath.size() - 1) / 3 > t+mSpeed) t+=mSpeed;
-            else t = 1;
+            else t = (mPath.size() - 1) / 3;
+            //std::cerr << "t = " << t << "\n";
             location = CMPUT350::Bezier::GetPoint(mPath, t);
-            if(t ==1){
+            if(t ==(mPath.size() - 1) / 3 ){
                 mStates = EnemyStates::kWaiting;
-            } 
+                mRotation = 0,0;
+            }
+            if(context->currentFrame % N == 0){
+                if(mShot1.expired()){
+                std::shared_ptr<Bullet> bullet1 = std::make_shared<Bullet>(location,CMPUT350::Point2D(0,10), false);
+                mShot1 = bullet1;
+                context->mEngineView->AddGameObject(bullet1);
+                
+                }
+            }
+
             break;
+            
 
     }
 
@@ -101,7 +123,7 @@ void Enemy::RenderForeground(CMPUT350::GameContext* context)
 void Enemy::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj)
 {
     std::shared_ptr<Bullet> bullet = std::dynamic_pointer_cast<Bullet>(obj);
-
+    std::shared_ptr<Player> player = std::dynamic_pointer_cast<Player>(obj);
 
     if(bullet != nullptr && bullet->IsPlayerBullet()){
         mHealth = mHealth -1;
@@ -109,6 +131,12 @@ void Enemy::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj
             Kill();
         }
         
+    }
+    if(player != nullptr){
+        mHealth = mHealth -1;
+        if(mHealth <= 0){
+            Kill();
+        } 
     }
 }
 

@@ -46,6 +46,7 @@ private:
     int mCredits;
     bool mGameStart;
     std::weak_ptr<Player> mPlayer;
+    int offset;
 };
 
 }  // namespace CMPUT350

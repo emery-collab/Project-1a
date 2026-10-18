@@ -45,8 +45,13 @@ private:
     CMPUT350::Point2D ending;      // Position this frame
     CMPUT350::Point2D headingAmt;  // Movement per frame
 
-    // new partb member
+    // new partb members
     std::vector<CMPUT350::Shape> mShapes;
+
+    // variables for handling explosions, tracking status, point, and time the explosion is around
+    bool mExploded = false;
+    CMPUT350::Point2D mExplosionPoint;
+    int mExplosionFrames = 0;
 
 };
 #endif // BULLET_H

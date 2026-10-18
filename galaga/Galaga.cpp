@@ -1,3 +1,4 @@
+// Comments on the waves, attack, respawn and scoring code were AI-generated (Claude); code written by the team.
 #include "Galaga.h"
 #include "GameObject.h"
 #include "GameContext.h"
@@ -119,8 +120,9 @@ void Galaga::StartUp(GameContext* context){
     ChangeState(States::kWaves,context);
 
 }
+// Spawns one wave of 8 every 60 frames; after 5 waves, starts GamePlay
 void Galaga::Waves(GameContext* context){
-            
+
     float ySpacing = 60;
     float xSpacing = (768-100)/8;
     int elapsed = context->currentFrame - mStateStartFrame;
@@ -128,6 +130,7 @@ void Galaga::Waves(GameContext* context){
         for (int x = 0; x < 8; x++)
         {
             for(int y = waveNumber-1; y < waveNumber; y++){
+                // Column decides the type: 2 Enemy3, 4 Enemy2, 2 Enemy1 per wave
                 if(x >=0 && x < 2){
                     CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
                     std::vector<CMPUT350::Point2D> path = {
@@ -174,6 +177,7 @@ void Galaga::Waves(GameContext* context){
             }
 
         }
+        // Restart the timer and move to the next wave
         mStateStartFrame = context->currentFrame;
         waveNumber++;
         if(waveNumber > 5) ChangeState(States::kGamePlay,context);
@@ -210,6 +214,7 @@ void Galaga::GamePlay(GameContext* context){
         target =  p->GetLocation();
     }
     
+    // Every 120 frames, send at most one enemy of each type to attack
     if (elapsed > 120){
         int counter1 = 0;
         int counter2 = 0;
@@ -249,6 +254,7 @@ void Galaga::GamePlay(GameContext* context){
             }
             if(sent1 && sent2&& sent3)break;
         }
+        // Pick different enemies next round; wrap to 0 when none could attack
         mStateStartFrame = context->currentFrame;
         offset++;
         if(!sent1 && !sent2&& !sent3){
@@ -273,6 +279,7 @@ void Galaga::Respawn(GameContext* context){
 
     int elapsed = context->currentFrame - mStateStartFrame;
     if (elapsed < 60) return;
+    // Wait until no enemy is still attacking
     for (const auto &obj : *(context->mEngineView)){
         auto enemyMoving = std::dynamic_pointer_cast<Enemy>(obj);
         if(enemyMoving!=nullptr){
@@ -332,6 +339,7 @@ void Galaga::ChangeState(States next, GameContext *context){
 
 }
 void Galaga::ReceiveNotification(const std::string& key){
+    // Points depend on enemy type, and are doubled when killed out of formation
     if ((key == "Enemy1DestroyedOutFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn || mStates ==States::kWaves) ){
         mScore+=200;
         mEnemiesAlive= mEnemiesAlive - 1;

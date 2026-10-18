@@ -32,15 +32,18 @@ Enemy::Enemy(CMPUT350::Point2D loc,const std::vector<CMPUT350::Point2D> &path )
 void Enemy::Initialize(CMPUT350::GameContext* context)
 {
 }
+// Returns the current state
 EnemyStates Enemy::GetState() const{
     return mStates;
 }
 
+// Moves the enemy based on its state
 void Enemy::Update(CMPUT350::GameContext* context)
 {
    switch (mStates)
     {
 
+        // Follow the entry path at a constant speed; wait in formation at the end
         case(EnemyStates::kEntering):{
 
             auto slope = CMPUT350::Bezier::GetSlope(mPath,t);
@@ -55,6 +58,7 @@ void Enemy::Update(CMPUT350::GameContext* context)
             } 
             break;
         }
+        // Hover side to side around the formation spot
         case(EnemyStates::kWaiting):{
             //location = formationSpot;
             float speed = 0.1;
@@ -63,6 +67,7 @@ void Enemy::Update(CMPUT350::GameContext* context)
             location.x = formationSpot.x + std::sin(context->currentFrame * speed) * distance;
             break;
         }
+        // Follow the attack path back to formation, firing along the way
         case(EnemyStates::kAttacking):
             auto slope = CMPUT350::Bezier::GetSlope(mPath,t);
             auto derivative = slope.Distance(CMPUT350::Point2D(0,0));
@@ -75,6 +80,7 @@ void Enemy::Update(CMPUT350::GameContext* context)
                 mStates = EnemyStates::kWaiting;
                 mRotation = 0,0;
             }
+            // Fire at most every 60 frames
             if(context->currentFrame % 60 == 0){
                 if(mShot1.expired()){
                 std::shared_ptr<Bullet> bullet1 = std::make_shared<Bullet>(location,CMPUT350::Point2D(0,10), false);
@@ -123,7 +129,7 @@ void Enemy::RenderForeground(CMPUT350::GameContext* context)
     context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-15, -15), 30, 30), CMPUT350::Colors::red);
 }
 
-// Dies when hit by a player bullet
+// Loses health when hit by a player bullet or the player; dies at 0
 void Enemy::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj)
 {
     std::shared_ptr<Bullet> bullet = std::dynamic_pointer_cast<Bullet>(obj);

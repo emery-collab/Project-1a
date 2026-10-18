@@ -10,6 +10,7 @@ void Enemy1::Initialize(CMPUT350::GameContext* context)
 {
 
 }
+// If in formation, starts an attack: home -> toward the target -> back home
 bool Enemy1::Attack(CMPUT350::GameContext *context, const CMPUT350::Point2D &target)
 {
     if(mStates == EnemyStates::kWaiting){
@@ -37,6 +38,7 @@ bool Enemy1::Attack(CMPUT350::GameContext *context, const CMPUT350::Point2D &tar
 
 }
 
+// Tells Galaga this enemy died and whether it was in formation
 void Enemy1::LateUpdate(CMPUT350::GameContext* context)
 {
     if(!mAlive){

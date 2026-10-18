@@ -1,0 +1,150 @@
+CMPUT 350 - Project 1b: Galaga
+Team: Sean Piatt, [FILL IN: partner name]
+
+============================================================
+1. OVERVIEW
+============================================================
+A Galaga-style shooter built on our own game engine. The engine (engine/)
+handles the game loop, drawing with per-object offsets/rotations, collision
+detection between lines, circles and rectangles, keyboard-to-notification
+mapping, and a notification manager. The game (galaga/) is driven by a single
+Galaga game object that main.cpp adds to the engine.
+
+Controls:
+  5            insert a coin (5 needed)
+  1            start the game
+  A / Left     move left
+  D / Right    move right
+  Space        fire
+
+============================================================
+2. GALAGA STATE FLOW (galaga/Galaga.h/.cpp)
+============================================================
+Galaga runs a finite state machine (enum class States). Galaga::Update calls
+the function for the current state every frame. ChangeState() switches state
+and records the frame it started on (mStateStartFrame), which is used as a
+timer with context->currentFrame.
+
+  WaitingForGameToBegin
+      Shows the coin count. Waits for 5 coins and the start key.
+          |
+          v
+  StartUp
+      Shows the stage, waits 60 frames, spawns the player, resets the wave
+      counter.
+          |
+          v
+  Waves
+      Every 60 frames spawns one wave of 8 enemies (one row), 5 waves in
+      total. Each wave mixes types by column (2 Enemy3, 4 Enemy2, 2 Enemy1).
+      Each enemy gets its formation spot and an entry Bezier path.
+          |
+          v
+  GamePlay
+      Every 120 frames selects enemies to attack (see section 3). If the
+      player dies -> Respawn (or GameOver at 0 lives). If all enemies are
+      destroyed -> next level, back to StartUp.
+          |                         ^
+          v                         |
+  Respawn                           |
+      Shows the remaining lives. Waits until no enemy is attacking, then
+      spawns a new player and returns to GamePlay.
+
+  GameOver
+      Shows "GAME OVER" for 90 frames, kills all objects, resets score,
+      lives, level and coins, and returns to WaitingForGameToBegin.
+
+============================================================
+3. DESIGN DECISIONS
+============================================================
+Enemies (galaga/Enemy.h/.cpp, Enemy1/2/3)
+  - Enemy is an abstract base class with a pure virtual Attack(). The common
+    logic (following Bezier curves, hovering, firing, collisions) lives in
+    Enemy; Enemy1/2/3 differ in health, drawing, and their attack curve.
+  - Each enemy has its own state (enum class EnemyStates):
+      kEntering  - follows the entry path given by Galaga
+      kWaiting   - in formation, hovers side to side
+      kAttacking - follows its attack path, firing, and ends back home
+  - Attack(context, target) returns false unless the enemy is in formation.
+    Otherwise it builds a new 7-point Bezier path (home -> near the player ->
+    home), resets t, switches to kAttacking and returns true.
+  - Constant speed: t is advanced by (pixels per frame / |slope|), using the
+    Bezier derivative, so enemies move at the same speed along any curve.
+  - Hovering uses sin(currentFrame), so all enemies hover in sync.
+  - Health: Enemy1 = 1, Enemy2 = 2, Enemy3 = 3. Enemies with more than one
+    health change color as they are hit.
+  - Enemies fire at most once every 60 frames while attacking.
+
+Attack selection (Galaga::GamePlay)
+  - Deterministic, no randomness. Every 120 frames Galaga iterates over the
+    engine's objects (EngineView iterator + dynamic_pointer_cast) and sends at
+    most one enemy of each type to attack, skipping the first `offset` of
+    each type. offset increases every round and wraps to 0 when no enemy
+    could attack, so different enemies take turns.
+
+Scoring (notifications)
+  - When an enemy dies it sends one of six notifications, e.g.
+    "Enemy1DestroyedInFormation" / "Enemy1DestroyedOutFormation".
+    Galaga registers for all six and awards points:
+        Enemy1: 100 in formation, 200 out of formation
+        Enemy2: 200 / 400
+        Enemy3: 300 / 600
+
+Respawn
+  - Galaga waits until no enemy is in kAttacking (checked through the new
+    public Enemy::GetState()) before respawning the player.
+
+============================================================
+4. CHANGES TO THE BASIC API
+============================================================
+  - Enemy::GetState() (public) and enum class EnemyStates were added so
+    Galaga can check whether enemies are still attacking.
+  - Galaga::ChangeState() helper and one function per state.
+  - [FILL IN: any engine API changes your partner made]
+
+============================================================
+5. TEAM CONTRIBUTIONS for part B
+============================================================
+(Drafted from our git history - please check and correct.)
+
+Sean Piatt:
+  - Bezier curves (engine/Bezier.h/.cpp)
+  - Notification manager (engine/NotificationManager.h/.cpp)
+  - Galaga game manager: state machine, GUI, coins/start screen, waves,
+    scoring, lives, respawn, game over (galaga/Galaga.h/.cpp)
+  - Stars background
+  - Enemy behaviour: Enemy base class, Enemy1/2/3, attacks, hovering,
+    firing, health colors (galaga/Enemy*.h/.cpp)
+  - Enemy/player bullet collisions
+
+[FILL IN: partner name]:
+  - MathUtil: Line, Circle, ClosestPoint, Crosses
+  - CollisionObject shapes and collision detection in GameEngine
+  - DrawContext offsets/rotation transformations
+  - GameEngine Part B updates
+  - Bullet explosion / rendering updates
+  - [FILL IN]
+
+============================================================
+6. EXTRA CREDIT
+============================================================
+  [FILL IN: none, or describe what was done]
+
+============================================================
+7. AI USAGE
+============================================================
+Tool: Claude (Claude Code).
+
+  - Comments: comments in files marked with a header line
+    "Comments ... were AI-generated (Claude); code written by the team"
+    were written by AI and reviewed by us.
+  - This file: drafted with AI from our code and git history, then
+    reviewed and completed by us.
+  - Help while coding: we used Claude to explain C++ concepts and compiler
+    errors and helped break the specifications into steps.
+  - [FILL IN: any code that came from AI, the prompt used, and where it is
+    in the code]
+
+Reflection:
+  [FILL IN: your own reflection on the quality and usefulness of the AI
+  help and any AI code]

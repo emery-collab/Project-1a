@@ -5,7 +5,7 @@
 #include "CollisionObject.h"
 #include "GameContext.h"
 #include "Enemy.h"
-// A stationary enemy drawn as a square; dies when hit by a player bullet
+// 2-health enemy; green, turns red when hit
 class Enemy2 : public Enemy {
 public:
     Enemy2(CMPUT350::Point2D loc, const std::vector<CMPUT350::Point2D> &path)

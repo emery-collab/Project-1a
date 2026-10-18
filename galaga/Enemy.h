@@ -7,10 +7,11 @@
 #include "Bullet.h"
 
 
+// Flying in, in formation, or attacking
 enum class EnemyStates{
     kEntering, kWaiting,kAttacking
 };
-// A stationary enemy drawn as a square; dies when hit by a player bullet
+// Base class for all enemies: follows Bezier paths, hovers in formation, fires while attacking
 class Enemy : public CMPUT350::CollisionObject
 {
 public:
@@ -31,7 +32,7 @@ public:
     // new virtual functions for partb inherited from collisionobject.h
     CMPUT350::Point2D GetLocation() const override;
     float GetRotation() const override;
-    EnemyStates GetState() const;
+    EnemyStates GetState() const;   // Lets Galaga check if the enemy is attacking
     const std::vector<CMPUT350::Shape>& GetShapes() override;
 
 
@@ -49,14 +50,14 @@ protected:
     // new member variables
     std::vector<CMPUT350::Shape> mShapes;
     CMPUT350::Point2D location;
-    CMPUT350::Point2D formationSpot;
-    std::vector<CMPUT350::Point2D> mPath;
-    float t;
+    CMPUT350::Point2D formationSpot;        // Home spot in the formation
+    std::vector<CMPUT350::Point2D> mPath;   // Current entry or attack path
+    float t;                                // Progress along mPath
     float mSpeed;
     float mRotation;
     int mHealth;
     EnemyStates mStates;
-    std::weak_ptr<Bullet> mShot1;
+    std::weak_ptr<Bullet> mShot1;           // Last bullet fired
 };
 
 

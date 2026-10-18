@@ -9,6 +9,7 @@ void Enemy2::Initialize(CMPUT350::GameContext* context)
 {
     
 }
+// If in formation, starts an attack: a wide loop past the target, then back home
 bool Enemy2::Attack(CMPUT350::GameContext *context, const CMPUT350::Point2D &target)
 {
     if(mStates == EnemyStates::kWaiting){
@@ -35,6 +36,7 @@ bool Enemy2::Attack(CMPUT350::GameContext *context, const CMPUT350::Point2D &tar
     return false;
 }
 
+// Tells Galaga this enemy died and whether it was in formation
 void Enemy2::LateUpdate(CMPUT350::GameContext* context)
 {
     if(!mAlive){
@@ -44,7 +46,7 @@ void Enemy2::LateUpdate(CMPUT350::GameContext* context)
 }
 
 
-// Draws the enemy as a red square
+// Color shows remaining health
 void Enemy2::RenderForeground(CMPUT350::GameContext* context)
 {
     //context->ScreenContext->DrawRect(mBounds, CMPUT350::Colors::red);

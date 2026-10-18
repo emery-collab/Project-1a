@@ -51,7 +51,7 @@ void Galaga::Initialize(CMPUT350::GameContext* context){
 
     context->mEngineView->InstallKeyUpNotification(10, "KillPlayerDebug");
     //context->mNotificationManager->Register(context->CurrObject, "EnemyDestroyed");
-    context->mNotificationManager->Register(context->CurrObject, "KillPlayerDebug");
+    //context->mNotificationManager->Register(context->CurrObject, "KillPlayerDebug");
     context->mNotificationManager->Register(context->CurrObject, "InsertedCredits");
     context->mNotificationManager->Register(context->CurrObject, "StartGame");
     context->mNotificationManager->Register(context->CurrObject, "Enemy1DestroyedInFormation");
@@ -223,8 +223,7 @@ void Galaga::GamePlay(GameContext* context){
             auto enemyCast3 = std::dynamic_pointer_cast<Enemy3>(obj);
             if(enemyCast1 != nullptr){
                 if(counter1 >= offset && !sent1){
-                    enemyCast1->Attack(context,target);
-                    sent1 = true;
+                    sent1 = enemyCast1->Attack(context,target);
                 }
                 else{
                     counter1++;
@@ -233,8 +232,7 @@ void Galaga::GamePlay(GameContext* context){
             }
             if(enemyCast2 != nullptr){
                 if(counter2 >= offset&& !sent2){
-                    enemyCast2->Attack(context,target);
-                    sent2 = true;
+                    sent2 = enemyCast2->Attack(context,target);
                 }
                 else{
                     counter2++;
@@ -243,8 +241,7 @@ void Galaga::GamePlay(GameContext* context){
             }
             if(enemyCast3 != nullptr){
                 if(counter3 >= offset&& !sent3){
-                    enemyCast3->Attack(context,target);
-                    sent3 = true;
+                    sent3 = enemyCast3->Attack(context,target);
                 }
                 else{
                     counter3++;
@@ -253,13 +250,10 @@ void Galaga::GamePlay(GameContext* context){
             if(sent1 && sent2&& sent3)break;
         }
         mStateStartFrame = context->currentFrame;
+        offset++;
         if(!sent1 && !sent2&& !sent3){
             offset = 0;
         }
-        sent1 = false;
-
-
-
     } 
 
 }
@@ -338,27 +332,27 @@ void Galaga::ChangeState(States next, GameContext *context){
 
 }
 void Galaga::ReceiveNotification(const std::string& key){
-    if ((key == "Enemy1DestroyedOutFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn) ){
+    if ((key == "Enemy1DestroyedOutFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn || mStates ==States::kWaves) ){
         mScore+=200;
         mEnemiesAlive= mEnemiesAlive - 1;
     }
-    if ((key == "Enemy1DestroyedInFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn) ){
+    if ((key == "Enemy1DestroyedInFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn|| mStates ==States::kWaves) ){
         mScore+=100;
         mEnemiesAlive= mEnemiesAlive - 1;
     }
-    if ((key == "Enemy2DestroyedOutFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn) ){
+    if ((key == "Enemy2DestroyedOutFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn|| mStates ==States::kWaves) ){
         mScore+=400;
         mEnemiesAlive= mEnemiesAlive - 1;
     }
-    if ((key == "Enemy2DestroyedInFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn) ){
+    if ((key == "Enemy2DestroyedInFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn|| mStates ==States::kWaves) ){
         mScore+=200;
         mEnemiesAlive= mEnemiesAlive - 1;
     }
-    if ((key == "Enemy3DestroyedOutFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn) ){
+    if ((key == "Enemy3DestroyedOutFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn|| mStates ==States::kWaves) ){
         mScore+=600;
         mEnemiesAlive= mEnemiesAlive - 1;
     }
-    if ((key == "Enemy3DestroyedInFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn) ){
+    if ((key == "Enemy3DestroyedInFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn|| mStates ==States::kWaves) ){
         mScore+=300;
         mEnemiesAlive= mEnemiesAlive - 1;
     }

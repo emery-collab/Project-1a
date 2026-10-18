@@ -14,14 +14,14 @@ bool Enemy1::Attack(CMPUT350::GameContext *context, const CMPUT350::Point2D &tar
 {
     if(mStates == EnemyStates::kWaiting){
         t = 0;
-        formationSpot = location;
+        //formationSpot = location;
         std::vector<CMPUT350::Point2D> path = {
             formationSpot,
             CMPUT350::Point2D(target.x-100, target.y-500),
             CMPUT350::Point2D(target.x-50, target.y-300),
             CMPUT350::Point2D(target.x, target.y),
-            CMPUT350::Point2D(target.x+50, target.y-300),
-            CMPUT350::Point2D(target.x+100, target.y-500),
+            CMPUT350::Point2D(target.x+50, target.y+100),
+            CMPUT350::Point2D(target.x+100, target.y-300),
             formationSpot
         };
         mPath = path;
@@ -40,7 +40,8 @@ bool Enemy1::Attack(CMPUT350::GameContext *context, const CMPUT350::Point2D &tar
 void Enemy1::LateUpdate(CMPUT350::GameContext* context)
 {
     if(!mAlive){
-        context->mNotificationManager->Notify("EnemyDestroyed");
+        if(!(mStates == EnemyStates::kWaiting)) context->mNotificationManager->Notify("Enemy1DestroyedInFormation");
+        else context->mNotificationManager->Notify("Enemy1DestroyedOutFormation");
     }
 }
 

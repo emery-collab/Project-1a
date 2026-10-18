@@ -46,6 +46,8 @@ private:
     int mCredits;
     bool mGameStart;
     std::weak_ptr<Player> mPlayer;
+    int offset;
+    int waveNumber;
 };
 
 }  // namespace CMPUT350

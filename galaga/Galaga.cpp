@@ -22,7 +22,8 @@ Galaga::Galaga(float width, float height)
     mEnemiesAlive = 0;
     mCredits = 0;
     mGameStart = false;
-
+    offset = 0;
+    waveNumber =1;
 }
 
 void Galaga::Initialize(CMPUT350::GameContext* context){
@@ -49,10 +50,17 @@ void Galaga::Initialize(CMPUT350::GameContext* context){
     context->mEngineView->InstallKeyUpNotification(86, "StopMoveRight");
 
     context->mEngineView->InstallKeyUpNotification(10, "KillPlayerDebug");
-    context->mNotificationManager->Register(context->CurrObject, "EnemyDestroyed");
-    context->mNotificationManager->Register(context->CurrObject, "KillPlayerDebug");
+    //context->mNotificationManager->Register(context->CurrObject, "EnemyDestroyed");
+    //context->mNotificationManager->Register(context->CurrObject, "KillPlayerDebug");
     context->mNotificationManager->Register(context->CurrObject, "InsertedCredits");
     context->mNotificationManager->Register(context->CurrObject, "StartGame");
+    context->mNotificationManager->Register(context->CurrObject, "Enemy1DestroyedInFormation");
+    context->mNotificationManager->Register(context->CurrObject, "Enemy1DestroyedOutFormation");
+    context->mNotificationManager->Register(context->CurrObject, "Enemy2DestroyedInFormation");
+    context->mNotificationManager->Register(context->CurrObject, "Enemy2DestroyedOutFormation");
+    context->mNotificationManager->Register(context->CurrObject, "Enemy3DestroyedInFormation");
+    context->mNotificationManager->Register(context->CurrObject, "Enemy3DestroyedOutFormation");
+
    
 }
 void Galaga::Update(CMPUT350::GameContext* context){
@@ -97,6 +105,7 @@ void Galaga::WaitingForGameToBegin(GameContext* context){
 void Galaga::StartUp(GameContext* context){
     //reset the game start boolean to false
     mGameStart = false;
+    waveNumber =1;
     int elapsed = context->currentFrame - mStateStartFrame;
     //possibly add gui text for a countdown? 
     if (elapsed < 60) return;   
@@ -114,55 +123,63 @@ void Galaga::Waves(GameContext* context){
             
     float ySpacing = 60;
     float xSpacing = (768-100)/8;
-    
-    
-    for (int x = 0; x < 1; x++)
-    {
-        for(int y = 0; y < 5; y++){
-            if(y >=0 && y < 2){
-                CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
-                std::vector<CMPUT350::Point2D> path = {
-                CMPUT350::Point2D(300, -40),
-                CMPUT350::Point2D(700, 500),
-                CMPUT350::Point2D(100, 400),
-                formationSpot
-                };
-                auto enemy3 = std::make_shared<Enemy3>(formationSpot,path);
-                context->mEngineView->AddGameObject(enemy3);
-                mEnemiesAlive++;
+    int elapsed = context->currentFrame - mStateStartFrame;
+    if (elapsed >= 60){
+        for (int x = 0; x < 8; x++)
+        {
+            for(int y = waveNumber-1; y < waveNumber; y++){
+                if(x >=0 && x < 2){
+                    CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
+                    std::vector<CMPUT350::Point2D> path = {
+                    CMPUT350::Point2D(300+ 30*x, -40 +  xSpacing),
+                    CMPUT350::Point2D(700 + 30*x, 500 +  xSpacing),
+                    CMPUT350::Point2D(100+ 30*x, 400 + xSpacing),
+                    formationSpot
+                    };
+                    auto enemy3 = std::make_shared<Enemy3>(formationSpot,path);
+                    context->mEngineView->AddGameObject(enemy3);
+                    mEnemiesAlive++;
 
-            }
-            else if(y >=2 && y < 4){
-                CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
-                std::vector<CMPUT350::Point2D> path = {
-                CMPUT350::Point2D(300, -40),
-                CMPUT350::Point2D(700, 500),
-                CMPUT350::Point2D(100, 400),
-                formationSpot
-                };
-                auto enemy2 = std::make_shared<Enemy2>(formationSpot,path);
-                context->mEngineView->AddGameObject(enemy2);
-                mEnemiesAlive++;
+                }
+                else if(x >=2 && x < 6){
+                    CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
+                    std::vector<CMPUT350::Point2D> path = {
+                    CMPUT350::Point2D(300+  xSpacing+ 30*x, -40+  xSpacing),
+                    CMPUT350::Point2D(700+ xSpacing+ 30*x, 500+  xSpacing),
+                    CMPUT350::Point2D(100+ xSpacing+ 30*x, 400+ xSpacing),
+                    formationSpot
+                    };
+                    auto enemy2 = std::make_shared<Enemy2>(formationSpot,path);
+                    context->mEngineView->AddGameObject(enemy2);
+                    mEnemiesAlive++;
 
-            }
-            else if(y >=4){
-                CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
-                std::vector<CMPUT350::Point2D> path = {
-                CMPUT350::Point2D(300, -40),
-                CMPUT350::Point2D(700, 500),
-                CMPUT350::Point2D(100, 400),
-                formationSpot
-                };
-                auto enemy1 = std::make_shared<Enemy1>(formationSpot,path);
-                context->mEngineView->AddGameObject(enemy1);
-                mEnemiesAlive++;
+                }
+                else if(x >=6){
+                    CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
+                    std::vector<CMPUT350::Point2D> path = {
+                    CMPUT350::Point2D(300+ xSpacing- 30*x, -40+  xSpacing),
+                    CMPUT350::Point2D(700+ xSpacing- 30*x, 500+  xSpacing),
+                    CMPUT350::Point2D(100+ xSpacing- 30*x, 400+  xSpacing),
+                    formationSpot
+                    };
+                    auto enemy1 = std::make_shared<Enemy1>(formationSpot,path);
+                    context->mEngineView->AddGameObject(enemy1);
+                    mEnemiesAlive++;
+
+                }
+
+
+            
 
             }
 
         }
+        mStateStartFrame = context->currentFrame;
+        waveNumber++;
+        if(waveNumber > 5) ChangeState(States::kGamePlay,context);
 
-    }
-    ChangeState(States::kGamePlay,context);
+        }
+
    
     
 
@@ -192,20 +209,52 @@ void Galaga::GamePlay(GameContext* context){
     if(auto p = mPlayer.lock()){
         target =  p->GetLocation();
     }
-    if (elapsed < 210){
-        if(auto p = mPlayer.lock()){
-           CMPUT350::Point2D target =  p->GetLocation();
-        }
-        for (const auto &obj : *(context->mEngineView)){
-            auto enemyCast = std::dynamic_pointer_cast<Enemy>(obj);
-            if(enemyCast != nullptr){
-                enemyCast->Attack(context,target);
-            }
-        }
-    }
-
-
     
+    if (elapsed > 120){
+        int counter1 = 0;
+        int counter2 = 0;
+        int counter3 = 0;
+        bool sent1 = false;
+        bool sent2 = false;
+        bool sent3 = false;
+        for (const auto &obj : *(context->mEngineView)){
+            auto enemyCast1 = std::dynamic_pointer_cast<Enemy1>(obj);
+            auto enemyCast2 = std::dynamic_pointer_cast<Enemy2>(obj);
+            auto enemyCast3 = std::dynamic_pointer_cast<Enemy3>(obj);
+            if(enemyCast1 != nullptr){
+                if(counter1 >= offset && !sent1){
+                    sent1 = enemyCast1->Attack(context,target);
+                }
+                else{
+                    counter1++;
+                }
+                
+            }
+            if(enemyCast2 != nullptr){
+                if(counter2 >= offset&& !sent2){
+                    sent2 = enemyCast2->Attack(context,target);
+                }
+                else{
+                    counter2++;
+                }
+
+            }
+            if(enemyCast3 != nullptr){
+                if(counter3 >= offset&& !sent3){
+                    sent3 = enemyCast3->Attack(context,target);
+                }
+                else{
+                    counter3++;
+                }
+            }
+            if(sent1 && sent2&& sent3)break;
+        }
+        mStateStartFrame = context->currentFrame;
+        offset++;
+        if(!sent1 && !sent2&& !sent3){
+            offset = 0;
+        }
+    } 
 
 }
 void Galaga::GameOver(GameContext* context){
@@ -221,9 +270,17 @@ void Galaga::GameOver(GameContext* context){
 
 }
 void Galaga::Respawn(GameContext* context){
+
     int elapsed = context->currentFrame - mStateStartFrame;
     if (elapsed < 60) return;
-
+    for (const auto &obj : *(context->mEngineView)){
+        auto enemyMoving = std::dynamic_pointer_cast<Enemy>(obj);
+        if(enemyMoving!=nullptr){
+            if(enemyMoving->GetState() == EnemyStates::kAttacking){
+                return;
+            }
+        }
+    }
     auto player = std::make_shared<Player>(CMPUT350::Point2D(768 / 2, 900));
     context->mEngineView->AddGameObject(player);
     mPlayer = player;
@@ -275,8 +332,28 @@ void Galaga::ChangeState(States next, GameContext *context){
 
 }
 void Galaga::ReceiveNotification(const std::string& key){
-    if ((key == "EnemyDestroyed") && (mStates ==States::kGamePlay || mStates == States::kRespawn) ){
+    if ((key == "Enemy1DestroyedOutFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn || mStates ==States::kWaves) ){
+        mScore+=200;
+        mEnemiesAlive= mEnemiesAlive - 1;
+    }
+    if ((key == "Enemy1DestroyedInFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn|| mStates ==States::kWaves) ){
         mScore+=100;
+        mEnemiesAlive= mEnemiesAlive - 1;
+    }
+    if ((key == "Enemy2DestroyedOutFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn|| mStates ==States::kWaves) ){
+        mScore+=400;
+        mEnemiesAlive= mEnemiesAlive - 1;
+    }
+    if ((key == "Enemy2DestroyedInFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn|| mStates ==States::kWaves) ){
+        mScore+=200;
+        mEnemiesAlive= mEnemiesAlive - 1;
+    }
+    if ((key == "Enemy3DestroyedOutFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn|| mStates ==States::kWaves) ){
+        mScore+=600;
+        mEnemiesAlive= mEnemiesAlive - 1;
+    }
+    if ((key == "Enemy3DestroyedInFormation") && (mStates ==States::kGamePlay || mStates == States::kRespawn|| mStates ==States::kWaves) ){
+        mScore+=300;
         mEnemiesAlive= mEnemiesAlive - 1;
     }
     if((key == "KillPlayerDebug")){
@@ -290,6 +367,5 @@ void Galaga::ReceiveNotification(const std::string& key){
     if((key == "StartGame") && mCredits >= 5){
         mGameStart = true;
     }
-
 }
 }

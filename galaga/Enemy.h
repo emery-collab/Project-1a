@@ -4,6 +4,7 @@
 
 #include "CollisionObject.h"
 #include "GameContext.h"
+#include "Bullet.h"
 
 
 enum class EnemyStates{
@@ -30,6 +31,7 @@ public:
     // new virtual functions for partb inherited from collisionobject.h
     CMPUT350::Point2D GetLocation() const override;
     float GetRotation() const override;
+    EnemyStates GetState() const;
     const std::vector<CMPUT350::Shape>& GetShapes() override;
 
 
@@ -54,6 +56,7 @@ protected:
     float mRotation;
     int mHealth;
     EnemyStates mStates;
+    std::weak_ptr<Bullet> mShot1;
 };
 
 

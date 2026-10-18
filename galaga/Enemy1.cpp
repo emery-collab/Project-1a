@@ -26,7 +26,6 @@ bool Enemy1::Attack(CMPUT350::GameContext *context, const CMPUT350::Point2D &tar
         };
         mPath = path;
         mStates = EnemyStates::kAttacking;
-        location = formationSpot;
         return true;
     }
     if(mStates == EnemyStates::kAttacking){

@@ -11,7 +11,7 @@ void Enemy2::Initialize(CMPUT350::GameContext* context)
 }
 bool Enemy2::Attack(CMPUT350::GameContext *context, const CMPUT350::Point2D &target)
 {
-
+    return false;
 }
 
 void Enemy2::LateUpdate(CMPUT350::GameContext* context)

@@ -4,7 +4,7 @@
 #include <iostream>
 #include "NotificationManager.h"
 // Creates a 30x30 enemy centered at loc
-\
+
 
 void Enemy1::Initialize(CMPUT350::GameContext* context)
 {
@@ -12,6 +12,29 @@ void Enemy1::Initialize(CMPUT350::GameContext* context)
 }
 bool Enemy1::Attack(CMPUT350::GameContext *context, const CMPUT350::Point2D &target)
 {
+    if(mStates == EnemyStates::kWaiting){
+        t = 0;
+        formationSpot = location;
+        std::vector<CMPUT350::Point2D> path = {
+            formationSpot,
+            CMPUT350::Point2D(target.x-100, target.y-500),
+            CMPUT350::Point2D(target.x-50, target.y-300),
+            CMPUT350::Point2D(target.x, target.y),
+            CMPUT350::Point2D(target.x+50, target.y-300),
+            CMPUT350::Point2D(target.x+100, target.y-500),
+            formationSpot
+        };
+        mPath = path;
+        mStates = EnemyStates::kAttacking;
+        location = formationSpot;
+        return true;
+    }
+    if(mStates == EnemyStates::kAttacking){
+        return false;
+
+
+    }
+    return false;
 
 }
 

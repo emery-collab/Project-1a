@@ -5,6 +5,7 @@
 #include "NotificationManager.h"
 #include "Bezier.h"
 // Creates a 30x30 enemy centered at loc
+
 Enemy::Enemy(CMPUT350::Point2D loc,const std::vector<CMPUT350::Point2D> &path )
 {
     float h = 30;
@@ -22,6 +23,7 @@ Enemy::Enemy(CMPUT350::Point2D loc,const std::vector<CMPUT350::Point2D> &path )
     t = 0;
     mSpeed = 0.01;
     mRotation = (0,0);
+    mStates = EnemyStates::kEntering;
 };
 void Enemy::Initialize(CMPUT350::GameContext* context)
 {
@@ -29,14 +31,39 @@ void Enemy::Initialize(CMPUT350::GameContext* context)
 
 void Enemy::Update(CMPUT350::GameContext* context)
 {
-    //t = 3 for three pixels?
-    auto slope = CMPUT350::Bezier::GetSlope(mPath,t);
-    auto distance = slope.Distance(CMPUT350::Point2D(0,0));
-    mRotation = std::atan2(slope.y, slope.x); 
-    if((mPath.size() - 1) / 3 > t+mSpeed) t+=mSpeed;
-    else t = 1;
-    std::cerr << "t = " << t << "\n";
-    location = CMPUT350::Bezier::GetPoint(mPath, t);
+   switch (mStates)
+    {
+        case(EnemyStates::kEntering):{
+
+            auto slope = CMPUT350::Bezier::GetSlope(mPath,t);
+            auto distance = slope.Distance(CMPUT350::Point2D(0,0));
+            mRotation = std::atan2(slope.y, slope.x); 
+            if((mPath.size() - 1) / 3 > t+mSpeed) t+=mSpeed;
+            else t = 1;
+            //std::cerr << "t = " << t << "\n";
+            location = CMPUT350::Bezier::GetPoint(mPath, t);
+            if(t ==1){
+                mStates = EnemyStates::kWaiting;
+            } 
+            break;
+        }
+        case(EnemyStates::kWaiting):
+            break;
+        case(EnemyStates::kAttacking):
+            auto slope = CMPUT350::Bezier::GetSlope(mPath,t);
+            auto distance = slope.Distance(CMPUT350::Point2D(0,0));
+            mRotation = std::atan2(slope.y, slope.x); 
+            if((mPath.size() - 1) / 3 > t+mSpeed) t+=mSpeed;
+            else t = 1;
+            location = CMPUT350::Bezier::GetPoint(mPath, t);
+            if(t ==1){
+                mStates = EnemyStates::kWaiting;
+            } 
+            break;
+
+    }
+
+
     
 }
 
@@ -77,19 +104,10 @@ void Enemy::CollisionEnter(const std::shared_ptr<CMPUT350::CollisionObject>& obj
 
 
     if(bullet != nullptr && bullet->IsPlayerBullet()){
-        mhealth = mHealth -1;
-        if(mhealth <= 0){
+        mHealth = mHealth -1;
+        if(mHealth <= 0){
             Kill();
         }
-        else{
-            if (mHealth == 2){
-
-            }
-            if (mHealth == 1){
-                
-            }
-        }
-        
         
     }
 }

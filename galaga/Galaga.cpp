@@ -118,17 +118,47 @@ void Galaga::Waves(GameContext* context){
     
     for (int x = 0; x < 1; x++)
     {
-        for(int y = 0; y < 1; y++){
-            CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
-            std::vector<CMPUT350::Point2D> path = {
-                CMPUT350::Point2D(384, -40),
+        for(int y = 0; y < 5; y++){
+            if(y >=0 && y < 2){
+                CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
+                std::vector<CMPUT350::Point2D> path = {
+                CMPUT350::Point2D(300, -40),
                 CMPUT350::Point2D(700, 500),
                 CMPUT350::Point2D(100, 400),
                 formationSpot
-            };
-            auto enemy1 = std::make_shared<Enemy1>(formationSpot,path);
-            context->mEngineView->AddGameObject(enemy1);
-            mEnemiesAlive++;
+                };
+                auto enemy3 = std::make_shared<Enemy3>(formationSpot,path);
+                context->mEngineView->AddGameObject(enemy3);
+                mEnemiesAlive++;
+
+            }
+            else if(y >=2 && y < 4){
+                CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
+                std::vector<CMPUT350::Point2D> path = {
+                CMPUT350::Point2D(300, -40),
+                CMPUT350::Point2D(700, 500),
+                CMPUT350::Point2D(100, 400),
+                formationSpot
+                };
+                auto enemy2 = std::make_shared<Enemy2>(formationSpot,path);
+                context->mEngineView->AddGameObject(enemy2);
+                mEnemiesAlive++;
+
+            }
+            else if(y >=4){
+                CMPUT350::Point2D formationSpot(100 + x * xSpacing, y*ySpacing+100);
+                std::vector<CMPUT350::Point2D> path = {
+                CMPUT350::Point2D(300, -40),
+                CMPUT350::Point2D(700, 500),
+                CMPUT350::Point2D(100, 400),
+                formationSpot
+                };
+                auto enemy1 = std::make_shared<Enemy1>(formationSpot,path);
+                context->mEngineView->AddGameObject(enemy1);
+                mEnemiesAlive++;
+
+            }
+
         }
 
     }
@@ -154,6 +184,27 @@ void Galaga::GamePlay(GameContext* context){
         mLevel++;
         ChangeState(States::kStartUp, context);
     } 
+
+    int elapsed = context->currentFrame - mStateStartFrame;
+    //Wait enough time for allof them to get into formation
+    
+    CMPUT350::Point2D target;
+    if(auto p = mPlayer.lock()){
+        target =  p->GetLocation();
+    }
+    if (elapsed < 210){
+        if(auto p = mPlayer.lock()){
+           CMPUT350::Point2D target =  p->GetLocation();
+        }
+        for (const auto &obj : *(context->mEngineView)){
+            auto enemyCast = std::dynamic_pointer_cast<Enemy>(obj);
+            if(enemyCast != nullptr){
+                enemyCast->Attack(context,target);
+            }
+        }
+    }
+
+
     
 
 }

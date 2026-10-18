@@ -26,5 +26,20 @@ void Enemy3::LateUpdate(CMPUT350::GameContext* context)
 void Enemy3::RenderForeground(CMPUT350::GameContext* context)
 {
     //context->ScreenContext->DrawRect(mBounds, CMPUT350::Colors::red);
-    context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-15, -15), 30, 30), CMPUT350::Colors::red);
+    if(mHealth == 3){
+        context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-15, -15), 30, 10), CMPUT350::Colors::blue);
+        context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-15, -15), 10, 20), CMPUT350::Colors::blue);
+        context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(10, -15), 10, 20), CMPUT350::Colors::blue);
+    }
+    if(mHealth == 2){
+        context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-15, -15), 30, 10), CMPUT350::Colors::green);
+        context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-15, -15), 10, 20), CMPUT350::Colors::green);
+        context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(10, -15), 10, 20), CMPUT350::Colors::green);
+    }
+    if(mHealth ==1){
+        context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-15, -15), 30, 10), CMPUT350::Colors::red);
+        context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-10, -15), 10, 30), CMPUT350::Colors::red);
+        context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(10, -15), 10, 30), CMPUT350::Colors::red);
+    }
 }
+

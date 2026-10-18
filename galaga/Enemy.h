@@ -5,6 +5,10 @@
 #include "CollisionObject.h"
 #include "GameContext.h"
 
+
+enum class EnemyStates{
+    kEntering, kWaiting,kAttacking
+};
 // A stationary enemy drawn as a square; dies when hit by a player bullet
 class Enemy : public CMPUT350::CollisionObject
 {
@@ -43,11 +47,13 @@ protected:
     // new member variables
     std::vector<CMPUT350::Shape> mShapes;
     CMPUT350::Point2D location;
+    CMPUT350::Point2D formationSpot;
     std::vector<CMPUT350::Point2D> mPath;
     float t;
     float mSpeed;
     float mRotation;
     int mHealth;
+    EnemyStates mStates;
 };
 
 

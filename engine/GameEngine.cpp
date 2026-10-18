@@ -544,6 +544,7 @@ void GameEngine::Run() {
             // std::acos(-1.0f) is how you calculate PI, so we are dividing by PI
             mDrawContext->SetContextRotation(graphics->GetRotation() * 180.0f / std::acos(-1.0f));
             graphics->RenderBackground(&mGameContext);
+            
 
 
         }

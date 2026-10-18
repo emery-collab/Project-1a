@@ -26,6 +26,13 @@ void Enemy2::LateUpdate(CMPUT350::GameContext* context)
 void Enemy2::RenderForeground(CMPUT350::GameContext* context)
 {
     //context->ScreenContext->DrawRect(mBounds, CMPUT350::Colors::red);
-    context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-15, -15), 30, 30), CMPUT350::Colors::red);
+    if(mHealth == 2){
+        context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-15, -15), 30, 10), CMPUT350::Colors::green);
+        context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-5, -10), 10, 20), CMPUT350::Colors::green);
+    }
+    if(mHealth ==1){
+        context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-15, -15), 30, 10), CMPUT350::Colors::red);
+        context->ScreenContext->DrawRect(CMPUT350::Rect(CMPUT350::Point2D(-5, -10), 10, 20), CMPUT350::Colors::red);
+    }
 }
 
